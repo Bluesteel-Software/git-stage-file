@@ -1,21 +1,45 @@
 {
   "name": "git-stage-file",
-  "displayName": "Git Stage File",
-  "description": "quick picker to stage changes by file",
+  "displayName": "Git Stage File Picker",
+  "description": "Quick Picker to stage changes by file",
+  "repository": "http://www.github.com/floppydisco/git-stage-file",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.91.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": ["onStartupFinished"],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "git-stage-file.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+          {
+            "command": "gitStageFile.openPicker",
+            "title": "Stage File Picker",
+            "category": "Git"
+          }
+    ],
+    "keybindings": [
+      {
+        "key": "ctrl+s",
+        "command": "gitStageFile.openPicker",
+        "when": "focusedView === 'workbench.scm'",
+        "mac": "cmd+s"
+      },
+      {
+        "key": "ctrl+shift+s",
+        "command": "gitStageFile.stageAll",
+        "when": "gitStageFilePicker",
+        "mac": "cmd+shift+s"
+      },
+      {
+        "key": "ctrl+shift+u",
+        "command": "gitStageFile.unstageAll",
+        "when": "gitStageFilePicker",
+        "mac": "cmd+shift+u"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
@@ -23,7 +47,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.93.0",
+    "@types/vscode": "^1.91.0",
     "@types/mocha": "^10.0.7",
     "@types/node": "20.x",
     "eslint": "^8.57.0",
