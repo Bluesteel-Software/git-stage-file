@@ -1,65 +1,62 @@
-# git-stage-file README
+# Git Stage File Picker
 
-This is the README for your extension "git-stage-file". After writing up a brief description, we recommend including the following sections.
+An extension that provides a **QuickPick** interface to easily stage or unstage individual files in your Git repository using only the keyboard.
 
-## Features
+## Usage
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+The Stage File Picker can be opened by pressing `(Ctrl+S)` or `(⌘S)` while focused on the SCM (git) Sidebar view.
 
-For example if there is an image subfolder under your extension project workspace:
+The Stage File Picker will show all changes in the current repository,
+pressing `Enter` on a file will Stage/Unstage that file depending on it's current state.
 
-\!\[feature X\]\(images/feature-x.png\)
+You may search for a file by typing in the input box.
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+The Stage File Picker will remain open, allowing you to stage multiple files at a time,
+
+Pressing `Escape` will close the Stage File Picker and shift focus to the SCM (git) Sidebar view. Allowing you to input a Commit message.
+
+### Stage/Unstage All
+This UI is all about using the keyboard so the following keybindings are available when the Stage File Picker is open.
+- **Stage All**: `Shift+Ctrl+S` (Windows/Linux) or `⌘⇧S` (macOS)
+- **Unstage All**: `Shift+Ctrl+U` (Windows/Linux) or `⌘⇧U` (macOS)
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+- Git must be installed and available in your system’s PATH.
+- A Git-enabled project in your workspace.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- The extension currently only supports a single Git repository in the CWD.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+### v0.1.0
 
-### 1.0.0
+- Initial release of **Git Stage File Picker**.
 
-Initial release of ...
 
-### 1.0.1
+----
 
-Fixed issue #.
+### Tips
 
-### 1.1.0
+You may also open the Stage File Picker directly, without opening the SCM sidebar first by:
 
-Added features X, Y, and Z.
+- Using the **Command Palette** `(Ctrl+Shift+P)` or `(⌘⇧P)` and searching for 'Stage File Picker'
 
----
+- Saving a Keybinding to open the Stage File Picker directly, in keybindings.json.
 
-## Working with Markdown
+```
 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+// choose your desired keybinding
+{
+    "key": "cmd+shift+t",
+    "command": "gitStageFile.openPicker",
+},
+...
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets
+```
 
-## For more information
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
-**Enjoy!**
+Please let me know if there are any improvements that could be made to this extension!
