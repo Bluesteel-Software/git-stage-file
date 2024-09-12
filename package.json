@@ -3,6 +3,7 @@
   "displayName": "Git Stage File Picker",
   "description": "Quick Picker to stage changes by file",
   "repository": "http://www.github.com/floppydisco/git-stage-file",
+  "publisher": "bs-code",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.91.0"
