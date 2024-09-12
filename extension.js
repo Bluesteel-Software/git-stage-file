@@ -19,6 +19,7 @@ const isMacOS = os.platform() === "darwin";
 
 function activate(context) {
   context.subscriptions.push(
+    stageFilePicker,
     // |---------------------------|
     // |        Open Picker        |
     // |---------------------------|
