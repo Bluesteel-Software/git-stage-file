@@ -13,12 +13,22 @@
   "activationEvents": ["onStartupFinished"],
   "main": "./extension.js",
   "contributes": {
+    "menus": {
+      "scm/title": [
+        {
+          "command": "gitStageFile.openPicker",
+          "when": "scmProvider == git",
+          "group": "navigation"
+        }
+      ]
+    },
     "commands": [
-          {
-            "command": "gitStageFile.openPicker",
-            "title": "Stage File Picker",
-            "category": "Git"
-          }
+      {
+        "command": "gitStageFile.openPicker",
+        "title": "Stage File Picker",
+        "category": "Git",
+        "icon": "$(versions)"
+      }
     ],
     "keybindings": [
       {
