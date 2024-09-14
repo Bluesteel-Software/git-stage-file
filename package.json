@@ -1,7 +1,7 @@
 {
-  "name": "git-stage-file",
-  "displayName": "Git Stage File Picker",
-  "description": "Quick Picker to stage changes by file",
+  "name": "git-quick-stage",
+  "displayName": "Git QuickStage",
+  "description": "QuickPick menu to stage changes with keyboard",
   "repository": "http://www.github.com/floppydisco/git-stage-file",
   "publisher": "bs-code",
   "icon": "icon.png",
@@ -20,7 +20,7 @@
     "menus": {
       "scm/title": [
         {
-          "command": "gitStageFile.openPicker",
+          "command": "gitStageFile.quickStage",
           "when": "scmProvider == git",
           "group": "navigation"
         }
@@ -28,8 +28,8 @@
     },
     "commands": [
       {
-        "command": "gitStageFile.openPicker",
-        "title": "Stage File Picker",
+        "command": "gitStageFile.quickStage",
+        "title": "QuickStage",
         "category": "Git",
         "icon": "$(versions)"
       }
@@ -37,7 +37,7 @@
     "keybindings": [
       {
         "key": "ctrl+s",
-        "command": "gitStageFile.openPicker",
+        "command": "gitStageFile.quickStage",
         "when": "focusedView === 'workbench.scm'",
         "mac": "cmd+s"
       },

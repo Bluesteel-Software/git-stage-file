@@ -24,7 +24,7 @@ function activate(context) {
     // |        Open Picker        |
     // |---------------------------|
 
-    vscode.commands.registerCommand("gitStageFile.openPicker", async () => {
+    vscode.commands.registerCommand("gitStageFile.quickStage", async () => {
       // set When context
       vscode.commands.executeCommand("setContext", whenContext, true);
 
