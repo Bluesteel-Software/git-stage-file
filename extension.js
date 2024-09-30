@@ -78,7 +78,6 @@ function activate(context) {
       stageFilePicker = vscode.window.createQuickPick();
       stageFilePicker.keepScrollPosition = true;
       stageFilePicker.placeholder = "Select a file to Stage or Unstage ...";
-      // stageFilePicker.title = "Git: Stage Files";
 
       // |-----------------------|
       // |        Feature        |
@@ -265,35 +264,16 @@ function activate(context) {
         vscode.commands.executeCommand("workbench.scm.focus");
       });
 
-      // //   Buttons
-      // // -----------
-      // stageFilePicker.onDidTriggerButton((event) => {
-      //   vscode.commands.executeCommand(event.command);
-      // });
-      // stageFilePicker.buttons = [
-      //   {
-      //     iconPath: new vscode.ThemeIcon("add"),
-      //     id: "stageAll",
-      //     tooltip: `Stage All (${isMacOS ? "⌘⇧S" : "Shift+Ctrl+S"})`,
-      //     command: "gitStageFile.stageAll",
-      //   },
-      //   {
-      //     iconPath: new vscode.ThemeIcon("remove"),
-      //     id: "unstageAll",
-      //     tooltip: `Unstage All (${isMacOS ? "⌘⇧U" : "Shift+Ctrl+U"})`,
-      //     command: "gitStageFile.unstageAll",
-      //   },
-      // ];
-
       stageFilePicker.show(); // show the picker!
     }),
 
-    // |------------------------------------|
-    // |        Commands for Buttons        |
-    // |------------------------------------|
 
-    //   on Space
-    // ------------
+    // |----------------------------------------|
+    // |        Commands for keybindings        |
+    // |----------------------------------------|
+
+    //   Diff File
+    // -------------
 
     vscode.commands.registerCommand(commands.diff, () => {
       console.log("diffFile()");
