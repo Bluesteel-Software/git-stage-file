@@ -6,10 +6,20 @@ const os = require("os");
 
 const exec = util.promisify(cp.exec);
 
-const whenContext = "gitStageFilePicker";
+const whenContext = "QuickStageFocused";
+
 let stageFilePicker;
 
 const isMacOS = os.platform() === "darwin";
+
+const extPrefix = "quickStage";
+
+const commands = {
+  quickStage: `${extPrefix}.quickStage`,
+  diff: `${extPrefix}.diffFile`,
+  stageAll: `${extPrefix}.stageAll`,
+  unstageAll: `${extPrefix}.unstageAll`,
+};
 
 // symbols
 // ⌘
@@ -19,12 +29,14 @@ const isMacOS = os.platform() === "darwin";
 
 function activate(context) {
   context.subscriptions.push(
+    // UI
     stageFilePicker,
+
     // |---------------------------|
     // |        Open Picker        |
     // |---------------------------|
 
-    vscode.commands.registerCommand("gitStageFile.quickStage", async () => {
+    vscode.commands.registerCommand(commands.quickStage, async () => {
       // set When context
       vscode.commands.executeCommand("setContext", whenContext, true);
 
@@ -35,29 +47,16 @@ function activate(context) {
         return;
       }
 
-      //   Create Picker
-      // -----------------
-
-      stageFilePicker = vscode.window.createQuickPick();
-      stageFilePicker.keepScrollPosition = true;
-      stageFilePicker.placeholder = "Select a file to Stage or Unstage ...";
-      stageFilePicker.title = "Git: Stage File";
-
       //   Get Changes
       // ---------------
 
-      stageFilePicker.getChanges = async () => {
+      async function getChanges() {
         try {
           // Run the Git command from the workspace root
           const { stdout } = await exec(
             "git status --porcelain --untracked-files=all",
             { cwd: workspaceFolder }
           );
-
-          // |-----------------------|
-          // |        Feature        |
-          // |-----------------------|
-          //   if multiple git repositories, select which repository
 
           const changes = [];
 
@@ -70,13 +69,29 @@ function activate(context) {
         } catch (err) {
           console.log(err);
           vscode.window.showErrorMessage("Failed to get changes.");
-          return [];
         }
-      };
+      }
 
-      let changes = await stageFilePicker.getChanges();
+      //   Create Picker
+      // -----------------
 
-      if (changes.length === 0) {
+      stageFilePicker = vscode.window.createQuickPick();
+      stageFilePicker.keepScrollPosition = true;
+      stageFilePicker.placeholder = "Select a file to Stage or Unstage ...";
+      // stageFilePicker.title = "Git: Stage Files";
+
+      // |-----------------------|
+      // |        Feature        |
+      // |-----------------------|
+      //   if multiple git repositories, select which repository
+
+      //   Get Changes
+      // ---------------
+
+      let changes = await getChanges();
+      if (changes === undefined) {
+        return; // exit
+      } else if (changes.length === 0) {
         vscode.window.showInformationMessage("No Changes");
         return; // no changes. exit.
       }
@@ -84,7 +99,7 @@ function activate(context) {
       //   Stage Toggler
       // -----------------
 
-      stageFilePicker.stageFile = async (filepath, notStaged) => {
+      async function stageFile(filepath, notStaged) {
         const command = notStaged
           ? `git add ${filepath}`
           : `git reset ${filepath}`;
@@ -97,40 +112,91 @@ function activate(context) {
             `Failed to ${notStaged ? "stage" : "unstage"} file: ${filepath}`
           );
         }
-      };
+      }
 
       //   Update UI
       // -------------
 
+      let showingUnstageAll;
       stageFilePicker.updateItems = async (changes) => {
+        const prevShowingUnstageAll = showingUnstageAll;
+
         stageFilePicker.value = "";
+
         if (!changes) {
-          changes = await stageFilePicker.getChanges();
+          changes = await getChanges();
         }
         changes = changes.map(createQuickPickItem);
 
         const unstagedChanges = changes.filter((change) => change.notStaged);
-        const unstagedChangesGroup = [
-          {
-            label: `Changes (${unstagedChanges.length})`,
-            kind: vscode.QuickPickItemKind.Separator,
-          },
-          ...unstagedChanges,
-        ];
-
         const stagedChanges = changes.filter((change) => !change.notStaged);
-        const stagedChangesGroup = [
-          {
-            label: `Staged Changes (${stagedChanges.length})`,
-            kind: vscode.QuickPickItemKind.Separator,
-          },
-          ...stagedChanges,
-        ];
+
+        const unstageAllItem = {
+          description: `      Unstage All Changes (${
+            isMacOS ? "⌘⇧U" : "Shift+Ctrl+U"
+          })`,
+          command: commands.unstageAll,
+        };
+        showingUnstageAll = false;
+
+        const unstagedChangesGroup = [];
+
+        if (stagedChanges.length > 0) {
+          unstagedChangesGroup.push(unstageAllItem);
+          showingUnstageAll = true;
+        }
+        unstagedChangesGroup.push({
+          // separator
+          label: `Changes (${unstagedChanges.length})`,
+          kind: vscode.QuickPickItemKind.Separator,
+        });
+
+        unstagedChangesGroup.push(...unstagedChanges);
+
+        const stageAllItem = {
+          description: `      Stage All Changes (${
+            isMacOS ? "⌘⇧S" : "Shift+Ctrl+S"
+          })`,
+          command: commands.stageAll,
+        };
+
+        const stagedChangesGroup = [];
+
+        if (unstagedChanges.length > 0) {
+          stagedChangesGroup.push(stageAllItem);
+        }
+
+        stagedChangesGroup.push({
+          // separator
+          label: `Staged Changes (${stagedChanges.length})`,
+          kind: vscode.QuickPickItemKind.Separator,
+        });
+
+        stagedChangesGroup.push(...stagedChanges);
 
         stageFilePicker.items = [
           ...stagedChangesGroup,
           ...unstagedChangesGroup,
         ];
+
+        // set active item
+        let start = 0;
+        let newSelection = stageFilePicker.items[start];
+
+        // skip over stageAllItem
+        if (newSelection.command === commands.stageAll) {
+          newSelection = stageFilePicker.items[++start];
+        }
+        // skip over Stage separator
+        if (newSelection.kind === vscode.QuickPickItemKind.Separator) {
+          newSelection = stageFilePicker.items[++start];
+        }
+        // skip over Unstage separator
+        if (newSelection.kind === vscode.QuickPickItemKind.Separator) {
+          newSelection = stageFilePicker.items[++start];
+        }
+
+        stageFilePicker.activeItems = [newSelection];
 
         vscode.commands.executeCommand("git.refresh");
       };
@@ -146,24 +212,45 @@ function activate(context) {
 
       stageFilePicker.onDidChangeSelection(async ([selection]) => {
         if (selection) {
-          // store the index of the current selection
-          const selectionIndex = stageFilePicker.items.findIndex(
-            (item) => item.filepath === selection.filepath
-          );
+          if (selection.command === commands.stageAll) {
+            //   selected stageAll
+            vscode.commands.executeCommand(commands.stageAll);
+          } else if (selection.command === commands.unstageAll) {
+            //   selected unstageAll
+            vscode.commands.executeCommand(commands.unstageAll);
+          } else {
+            //   selected a file
+            // -------------------
 
-          await stageFilePicker.stageFile(
-            selection.filepath,
-            selection.notStaged
-          );
-          await stageFilePicker.updateItems();
+            // store the index of the current selection
+            let selectionIndex = stageFilePicker.items.findIndex(
+              (item) => item.filepath === selection.filepath
+            );
 
-          // set the active item to the saved index
-          // this keeps the selector from jumping around
-          let newSelection = stageFilePicker.items[selectionIndex];
-          if (newSelection.kind === vscode.QuickPickItemKind.Separator) {
-            newSelection = stageFilePicker.items[selectionIndex + 1];
+            const prevShowingUnstageAll = showingUnstageAll;
+
+            await stageFile(selection.filepath, selection.notStaged);
+            await stageFilePicker.updateItems();
+
+            // // set the active item to the saved index
+            // // this keeps the selector from jumping around
+            if (prevShowingUnstageAll !== showingUnstageAll) {
+              if (!prevShowingUnstageAll && showingUnstageAll) {
+                selectionIndex++;
+              }
+            }
+
+            let newSelection = stageFilePicker.items[selectionIndex];
+            // skip over unstageAllItem
+            if (newSelection.command === commands.unstageAll) {
+              newSelection = stageFilePicker.items[++selectionIndex];
+            }
+            // skip over separators
+            if (newSelection.kind === vscode.QuickPickItemKind.Separator) {
+              newSelection = stageFilePicker.items[++selectionIndex];
+            }
+            stageFilePicker.activeItems = [newSelection];
           }
-          stageFilePicker.activeItems = [newSelection];
         }
       });
 
@@ -178,25 +265,25 @@ function activate(context) {
         vscode.commands.executeCommand("workbench.scm.focus");
       });
 
-      //   Buttons
-      // -----------
-      stageFilePicker.onDidTriggerButton((event) => {
-        vscode.commands.executeCommand(event.command);
-      });
-      stageFilePicker.buttons = [
-        {
-          iconPath: new vscode.ThemeIcon("add"),
-          id: "stageAll",
-          tooltip: `Stage All (${isMacOS ? "⌘⇧S" : "Shift+Ctrl+S"})`,
-          command: "gitStageFile.stageAll",
-        },
-        {
-          iconPath: new vscode.ThemeIcon("remove"),
-          id: "unstageAll",
-          tooltip: `Unstage All (${isMacOS ? "⌘⇧U" : "Shift+Ctrl+U"})`,
-          command: "gitStageFile.unstageAll",
-        },
-      ];
+      // //   Buttons
+      // // -----------
+      // stageFilePicker.onDidTriggerButton((event) => {
+      //   vscode.commands.executeCommand(event.command);
+      // });
+      // stageFilePicker.buttons = [
+      //   {
+      //     iconPath: new vscode.ThemeIcon("add"),
+      //     id: "stageAll",
+      //     tooltip: `Stage All (${isMacOS ? "⌘⇧S" : "Shift+Ctrl+S"})`,
+      //     command: "gitStageFile.stageAll",
+      //   },
+      //   {
+      //     iconPath: new vscode.ThemeIcon("remove"),
+      //     id: "unstageAll",
+      //     tooltip: `Unstage All (${isMacOS ? "⌘⇧U" : "Shift+Ctrl+U"})`,
+      //     command: "gitStageFile.unstageAll",
+      //   },
+      // ];
 
       stageFilePicker.show(); // show the picker!
     }),
@@ -205,22 +292,38 @@ function activate(context) {
     // |        Commands for Buttons        |
     // |------------------------------------|
 
-    vscode.commands.registerCommand("gitStageFile.stageAll", () => {
+    //   on Space
+    // ------------
+
+    vscode.commands.registerCommand(commands.diff, () => {
+      console.log("diffFile()");
+      if (stageFilePicker) {
+        stageFilePicker.diffFile();
+      }
+    }),
+
+    //   Stage All
+    // -------------
+
+    vscode.commands.registerCommand(commands.stageAll, () => {
       vscode.commands.executeCommand("git.stageAll");
       setTimeout(() => {
         if (stageFilePicker) {
           stageFilePicker.updateItems();
         }
-      }, 10);
+      }, 30);
     }),
 
-    vscode.commands.registerCommand("gitStageFile.unstageAll", () => {
+    //   Unstage All
+    // ---------------
+
+    vscode.commands.registerCommand(commands.unstageAll, () => {
       vscode.commands.executeCommand("git.unstageAll");
       setTimeout(() => {
         if (stageFilePicker) {
           stageFilePicker.updateItems();
         }
-      }, 10);
+      }, 30);
     })
   );
 }
