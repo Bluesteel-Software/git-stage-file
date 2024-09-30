@@ -1,7 +1,7 @@
 {
   "name": "git-quick-stage",
   "displayName": "Git QuickStage",
-  "description": "QuickPick menu to stage changes with keyboard",
+  "description": "QuickPick menu to stage file changes with keyboard",
   "repository": "http://www.github.com/floppydisco/git-stage-file",
   "publisher": "bs-code",
   "icon": "icon.png",
@@ -20,15 +20,22 @@
     "menus": {
       "scm/title": [
         {
-          "command": "gitStageFile.quickStage",
+          "command": "quickStage.quickStage",
           "when": "scmProvider == git",
           "group": "navigation"
         }
       ]
     },
+    "whenContext":[
+      {
+        "key": "QuickStageFocused",
+        "description": "Focus is on the QuickStage file picker",
+        "type": "boolean"
+      }
+    ],
     "commands": [
       {
-        "command": "gitStageFile.quickStage",
+        "command": "quickStage.quickStage",
         "title": "QuickStage",
         "category": "Git",
         "icon": "$(versions)"
@@ -37,20 +44,20 @@
     "keybindings": [
       {
         "key": "ctrl+s",
-        "command": "gitStageFile.quickStage",
+        "command": "quickStage.quickStage",
         "when": "focusedView === 'workbench.scm'",
         "mac": "cmd+s"
       },
       {
         "key": "ctrl+shift+s",
-        "command": "gitStageFile.stageAll",
-        "when": "gitStageFilePicker",
+        "command": "quickStage.stageAll",
+        "when": "QuickStageFocused",
         "mac": "cmd+shift+s"
       },
       {
         "key": "ctrl+shift+u",
-        "command": "gitStageFile.unstageAll",
-        "when": "gitStageFilePicker",
+        "command": "quickStage.unstageAll",
+        "when": "QuickStageFocused",
         "mac": "cmd+shift+u"
       }
     ]
