@@ -275,12 +275,12 @@ function activate(context) {
     //   Diff File
     // -------------
 
-    vscode.commands.registerCommand(commands.diff, () => {
-      console.log("diffFile()");
-      if (stageFilePicker) {
-        stageFilePicker.diffFile();
-      }
-    }),
+    // vscode.commands.registerCommand(commands.diff, () => {
+    //   console.log("diffFile()");
+    //   if (stageFilePicker) {
+    //     stageFilePicker.diffFile();
+    //   }
+    // }),
 
     //   Stage All
     // -------------
@@ -288,22 +288,22 @@ function activate(context) {
     vscode.commands.registerCommand(commands.stageAll, () => {
       vscode.commands.executeCommand("git.stageAll");
       setTimeout(() => {
-        if (stageFilePicker) {
+          if (stageFilePicker) {
+              stageFilePicker.updateItems();
+            }
+          }, 500);
+        }),
+
+        //   Unstage All
+        // ---------------
+
+        vscode.commands.registerCommand(commands.unstageAll, () => {
+          vscode.commands.executeCommand("git.unstageAll");
+          setTimeout(() => {
+              if (stageFilePicker) {
           stageFilePicker.updateItems();
         }
-      }, 30);
-    }),
-
-    //   Unstage All
-    // ---------------
-
-    vscode.commands.registerCommand(commands.unstageAll, () => {
-      vscode.commands.executeCommand("git.unstageAll");
-      setTimeout(() => {
-        if (stageFilePicker) {
-          stageFilePicker.updateItems();
-        }
-      }, 30);
+      }, 500);
     })
   );
 }
