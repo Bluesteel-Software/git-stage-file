@@ -10,10 +10,14 @@
     "vscode": "^1.91.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "SCM Providers"
+  ],
+  "extensionDependencies": [
+    "vscode.git"
   ],
   "activationEvents": [
-    "onStartupFinished"
+    "onCommand:noop"
   ],
   "main": "./extension.js",
   "contributes": {

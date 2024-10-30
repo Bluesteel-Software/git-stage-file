@@ -21,13 +21,48 @@ const commands = {
   unstageAll: `${extPrefix}.unstageAll`,
 };
 
-// symbols
-// ⌘
-// ⌥
-// ^
-// ⇧
 
-function activate(context) {
+
+async function activate(context) {
+
+  const gitExtension = vscode.extensions.getExtension('vscode.git').exports.getAPI(1)
+
+  const repo = gitExtension.repositories[0]
+
+  console.log('repo',repo);
+
+  const unstaged =  repo.state.workingTreeChanges
+  console.log('unstaged',unstaged);
+
+const uri = unstaged[0]
+console.log('uri',uri);
+
+  vscode.commands.executeCommand("git.stage", uri)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   context.subscriptions.push(
     // UI
     stageFilePicker,
@@ -177,6 +212,7 @@ function activate(context) {
           ...stagedChangesGroup,
           ...unstagedChangesGroup,
         ];
+
 
         // set active item
         let start = 0;
