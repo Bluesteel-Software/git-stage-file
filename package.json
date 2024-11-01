@@ -17,7 +17,7 @@
     "vscode.git"
   ],
   "activationEvents": [
-    "onCommand:noop"
+    "onStartupFinished"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -43,6 +43,12 @@
         "title": "QuickStage",
         "category": "Git",
         "icon": "$(versions)"
+      },
+      {
+        "command": "quickStage.diffFile",
+        "title": "QuickStage",
+        "category": "Git",
+        "icon": "$(versions)"
       }
     ],
     "keybindings": [
@@ -51,6 +57,18 @@
         "command": "quickStage.quickStage",
         "when": "focusedView === 'workbench.scm'",
         "mac": "cmd+s"
+      },
+      {
+        "key": "ctrl+s",
+        "command": "quickStage.focusQuickStage",
+        "when": "QuickStageFocused",
+        "mac": "cmd+s"
+      },
+      {
+        "key": "space",
+        "command": "quickStage.diffFile",
+        "when": "QuickStageFocused",
+        "mac": "space"
       },
       {
         "key": "ctrl+shift+s",

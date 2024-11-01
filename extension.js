@@ -5,73 +5,67 @@ const path = require("path");
 const os = require("os");
 
 const exec = util.promisify(cp.exec);
+const isMacOS = os.platform() === "darwin";
 
-const whenContext = "QuickStageFocused";
 
 let stageFilePicker;
 
-const isMacOS = os.platform() === "darwin";
+const whenContext = "QuickStageFocused";
 
 const extPrefix = "quickStage";
 
 const commands = {
   quickStage: `${extPrefix}.quickStage`,
+  focusQuickStage: `${extPrefix}.focusQuickStage`,
   diff: `${extPrefix}.diffFile`,
   stageAll: `${extPrefix}.stageAll`,
   unstageAll: `${extPrefix}.unstageAll`,
 };
 
+const STATUS = [
+  'INDEX_MODIFIED',   // 0
+  'INDEX_ADDED',      // 1
+  'INDEX_DELETED',    // 2
+  'INDEX_RENAMED',    // 3
+  'INDEX_COPIED',     // 4
+  'MODIFIED',         // 5
+  'DELETED',          // 6
+  'UNTRACKED',        // 7
+  'IGNORED',          // 8
+  'INTENT_TO_ADD',    // 9
+  'INTENT_TO_RENAME',  // 10
+  'TYPE_CHANGED',      // 11
+  'ADDED_BY_US',       // 12
+  'ADDED_BY_THEM',     // 13
+  'DELETED_BY_US',     // 14
+  'DELETED_BY_THEM',   // 15
+  'BOTH_ADDED',        // 16
+  'BOTH_DELETED',      // 17
+  'BOTH_MODIFIED'      // 18
+];
+
+
+
+
+
+
+
+
+
+
+
 
 
 async function activate(context) {
-
-  const gitExtension = vscode.extensions.getExtension('vscode.git').exports.getAPI(1)
-
-  const repo = gitExtension.repositories[0]
-
-  console.log('repo',repo);
-
-  const unstaged =  repo.state.workingTreeChanges
-  console.log('unstaged',unstaged);
-
-const uri = unstaged[0]
-console.log('uri',uri);
-
-  vscode.commands.executeCommand("git.stage", uri)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   context.subscriptions.push(
     // UI
     stageFilePicker,
 
-    // |---------------------------|
-    // |        Open Picker        |
-    // |---------------------------|
-
     vscode.commands.registerCommand(commands.quickStage, async () => {
+      // |-----------------------------|
+      // |      QuickStagePicker       |
+      // |-----------------------------|
+
       // set When context
       vscode.commands.executeCommand("setContext", whenContext, true);
 
@@ -82,29 +76,28 @@ console.log('uri',uri);
         return;
       }
 
+      const gitAPI = vscode.extensions
+        .getExtension("vscode.git")
+        .exports.getAPI(1);
+
+      const repositories = gitAPI.repositories;
+      // |-----------------------|
+      // |        Feature        |
+      // |-----------------------|
+      //   if multiple git repositories, select which repository
+
+      const selectedRepo = repositories[0];
+      console.log("repo",selectedRepo);
+
+
       //   Get Changes
       // ---------------
 
-      async function getChanges() {
-        try {
-          // Run the Git command from the workspace root
-          const { stdout } = await exec(
-            "git status --porcelain --untracked-files=all",
-            { cwd: workspaceFolder }
-          );
-
-          const changes = [];
-
-          stdout.split("\n").forEach((line) => {
-            if (line.length > 0) {
-              changes.push(line);
-            }
-          });
-          return changes;
-        } catch (err) {
-          console.log(err);
-          vscode.window.showErrorMessage("Failed to get changes.");
-        }
+      function getChanges() {
+        return {
+          unstagedChanges: selectedRepo.state.workingTreeChanges,
+          stagedChanges: selectedRepo.state.indexChanges,
+        };
       }
 
       //   Create Picker
@@ -112,20 +105,16 @@ console.log('uri',uri);
 
       stageFilePicker = vscode.window.createQuickPick();
       stageFilePicker.keepScrollPosition = true;
+      stageFilePicker.ignoreFocusOut = true;
       stageFilePicker.placeholder = "Select a file to Stage or Unstage ...";
-
-      // |-----------------------|
-      // |        Feature        |
-      // |-----------------------|
-      //   if multiple git repositories, select which repository
 
       //   Get Changes
       // ---------------
 
-      let changes = await getChanges();
-      if (changes === undefined) {
+      let { stagedChanges, unstagedChanges } = await getChanges();
+      if (stagedChanges === undefined && unstagedChanges == undefined) {
         return; // exit
-      } else if (changes.length === 0) {
+      } else if (unstagedChanges.length === 0 && stagedChanges.length === 0) {
         vscode.window.showInformationMessage("No Changes");
         return; // no changes. exit.
       }
@@ -152,18 +141,20 @@ console.log('uri',uri);
       // -------------
 
       let showingUnstageAll;
-      stageFilePicker.updateItems = async (changes) => {
+      stageFilePicker.updateItems = async () => {
         const prevShowingUnstageAll = showingUnstageAll;
 
         stageFilePicker.value = "";
 
-        if (!changes) {
-          changes = await getChanges();
-        }
-        changes = changes.map(createQuickPickItem);
+        // get changes
+        const { stagedChanges, unstagedChanges } = getChanges();
 
-        const unstagedChanges = changes.filter((change) => change.notStaged);
-        const stagedChanges = changes.filter((change) => !change.notStaged);
+        console.log("stagedChanges", stagedChanges);
+        console.log("unstagedChanges", unstagedChanges);
+
+        // create quickPick items
+        const stagedItems = stagedChanges.map(createQuickPickItem);
+        const unstagedItems = unstagedChanges.map(createQuickPickItem);
 
         const unstageAllItem = {
           description: `      Unstage All Changes (${
@@ -185,7 +176,7 @@ console.log('uri',uri);
           kind: vscode.QuickPickItemKind.Separator,
         });
 
-        unstagedChangesGroup.push(...unstagedChanges);
+        unstagedChangesGroup.push(...unstagedItems);
 
         const stageAllItem = {
           description: `      Stage All Changes (${
@@ -206,13 +197,12 @@ console.log('uri',uri);
           kind: vscode.QuickPickItemKind.Separator,
         });
 
-        stagedChangesGroup.push(...stagedChanges);
+        stagedChangesGroup.push(...stagedItems);
 
         stageFilePicker.items = [
           ...stagedChangesGroup,
           ...unstagedChangesGroup,
         ];
-
 
         // set active item
         let start = 0;
@@ -236,8 +226,17 @@ console.log('uri',uri);
         vscode.commands.executeCommand("git.refresh");
       };
 
-      stageFilePicker.updateItems(changes); // update UI with files
+      stageFilePicker.updateItems(); // update UI with files
 
+      stageFilePicker.diffFile = async () => {
+        const [selection] = stageFilePicker.activeItems;
+        const resource=selection.resource.resource
+        vscode.commands.executeCommand(
+          "vscode.diff",
+          resource.leftUri,
+          resource.rightUri,
+        );
+      };
       // |------------------------------|
       // |        Input Handling        |
       // |------------------------------|
@@ -303,7 +302,6 @@ console.log('uri',uri);
       stageFilePicker.show(); // show the picker!
     }),
 
-
     // |----------------------------------------|
     // |        Commands for keybindings        |
     // |----------------------------------------|
@@ -311,12 +309,20 @@ console.log('uri',uri);
     //   Diff File
     // -------------
 
-    // vscode.commands.registerCommand(commands.diff, () => {
-    //   console.log("diffFile()");
-    //   if (stageFilePicker) {
-    //     stageFilePicker.diffFile();
-    //   }
-    // }),
+    vscode.commands.registerCommand(commands.diff, () => {
+      console.log("diffFile()");
+      if (stageFilePicker) {
+        stageFilePicker.diffFile();
+      }
+    }),
+
+    vscode.commands.registerCommand(commands.focusQuickStage, () => {
+      console.log("focusing on quickPick");
+
+      if (stageFilePicker) {
+        vscode.commands.executeCommand("quickInput.first")
+      }
+    }),
 
     //   Stage All
     // -------------
@@ -324,19 +330,19 @@ console.log('uri',uri);
     vscode.commands.registerCommand(commands.stageAll, () => {
       vscode.commands.executeCommand("git.stageAll");
       setTimeout(() => {
-          if (stageFilePicker) {
-              stageFilePicker.updateItems();
-            }
-          }, 500);
-        }),
+        if (stageFilePicker) {
+          stageFilePicker.updateItems();
+        }
+      }, 500);
+    }),
 
-        //   Unstage All
-        // ---------------
+    //   Unstage All
+    // ---------------
 
-        vscode.commands.registerCommand(commands.unstageAll, () => {
-          vscode.commands.executeCommand("git.unstageAll");
-          setTimeout(() => {
-              if (stageFilePicker) {
+    vscode.commands.registerCommand(commands.unstageAll, () => {
+      vscode.commands.executeCommand("git.unstageAll");
+      setTimeout(() => {
+        if (stageFilePicker) {
           stageFilePicker.updateItems();
         }
       }, 500);
@@ -344,25 +350,25 @@ console.log('uri',uri);
   );
 }
 
-function createQuickPickItem(fileStatus) {
-  const filepath = fileStatus.slice(3);
+function createQuickPickItem(resource) {
+  const filepath = resource.uri.fsPath;
   const directory = path.dirname(filepath);
   const file = path.basename(filepath);
 
-  const untracked = fileStatus[0] === "?" && fileStatus[1] === "?";
-  const notStaged = untracked || fileStatus[0] === " ";
+  // const untracked = fileStatus[0] === "?" && fileStatus[1] === "?";
+  // const notStaged = untracked || fileStatus[0] === " ";
 
-  const stageSymbol = notStaged ? "$(add)" : "$(remove)";
-  const label = ` ${stageSymbol} ${file}`;
-  const description = `${fileStatus[notStaged ? 1 : 0]}${
-    directory === "." ? "" : `      ${directory}${path.sep}`
-  }`;
+  const stageSymbol = resource.status < 5 ? "$(remove)" : "$(add)";
+  const label = `${stageSymbol} ${file}`;
+  // const description = `${fileStatus[notStaged ? 1 : 0]}${
+  //   directory === "." ? "" : `      ${directory}${path.sep}`
+  // }`;
+  const description = `      ${directory}${path.sep}`;
 
   return {
     label,
     description,
-    filepath,
-    notStaged,
+    resource,
   };
 }
 
