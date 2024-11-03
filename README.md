@@ -1,24 +1,28 @@
-# Git QuickStage File Picker
+# Git QuickStage
 
-Stage files using only your keyboard.
+Preview and Stage files using only your keyboard.
 
 ## Usage
 
-While focused on the SCM sidebar, press (⌘S), or (Ctrl+S) on Windows, to open QuickStage. 
+Open QuickStage using `⌘S` / `Ctrl+S` while focused on the SCM sidebar
 
-Navigate using then `UP` and `DOWN` keys, or type to search for a specific file.
+Preview the changes by navigating `UP` and `DOWN`, or search for the file by typing.
 
-Press `Enter` to Stage/Unstage the selected file.
+`Enter` => Close QuickStage and shift focus to the diff editor.
 
-Press `Escape` to close QuickStage. Focus will move to the SCM View allowing you to type a commit message.
+`Space` => Stage / Unstage a file.
 
-### Stage/Unstage All
-- **Stage All**: (⌘⇧S) macOS or (Shift+Ctrl+S) Windows/Linux
-- **Unstage All**: (⌘⇧U) macOS or (Shift+Ctrl+U) Windows/Linux
+`⌘⇧S` / `Shift+Ctrl+S` => Stage All Files
 
-## Known Issues
+`⌘⇧U` / `Shift+Ctrl+U` => Unstage All Files
 
-- The extension currently only supports a single Git repository in the CWD.
+`Escape` => close QuickStage.
+
+
+
+
+
+"workbench.editor.enablePreview": true
 
 ---
 
