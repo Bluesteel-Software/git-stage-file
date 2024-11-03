@@ -44,6 +44,9 @@ function useGitApi (){
   .exports.getAPI(1);
 }
 
+  //   Activate
+  // ------------
+
 async function activate(context) {
   context.subscriptions.push(
 
@@ -124,11 +127,9 @@ async function activate(context) {
 
       stageFilePicker = vscode.window.createQuickPick();
       stageFilePicker.keepScrollPosition = true;
-      // stageFilePicker.ignoreFocusOut = true;
       stageFilePicker.placeholder = "Select a file to Stage or Unstage ...";
       stageFilePicker.stagedChanges = stagedChanges
       stageFilePicker.unstagedChanges = unstagedChanges
-
 
       //   Update UI
       // -------------
@@ -195,7 +196,7 @@ async function activate(context) {
         stageFilePicker.activeItems = [stageFilePicker.items[index]];
       }
 
-      stageFilePicker.updateItems({stagedChanges, unstagedChanges});
+      stageFilePicker.updateItems();
       stageFilePicker.setActiveItem();
       stageFilePicker.show();
 
@@ -216,11 +217,9 @@ async function activate(context) {
         const filepath = resource.uri.fsPath;
         const directory = path.relative(repository.rootUri.fsPath, path.dirname(resource.uri.fsPath));
         const file = path.basename(filepath);
-
         const stageSymbol = resource.status < 5 ? "$(remove)" : "$(add)";
         const label = `${stageSymbol} ${file}`;
         const description = directory === "" ? "" : `      ${directory}${path.sep}`;
-
         return {
           label,
           description,
@@ -248,9 +247,9 @@ async function activate(context) {
       //   Stage File
       // --------------
 
-      async function stageFile(resource) {
-        const filepath = resource.uri.fsPath
-        const isStaged = resource.status < 5
+      async function toggleStage(selection){
+        const filepath = selection.resource.uri.fsPath
+        const isStaged = selection.resource.status < 5
         const command = isStaged
           ? `git reset ${filepath}`
           : `git add -f ${filepath}`
@@ -273,11 +272,8 @@ async function activate(context) {
         //   console.log('staging file',resource);
         //   vscode.commands.executeCommand("git.stage",resource)
         // }
-      }
 
-      async function toggleStage(selection){
-        await stageFile(selection.resource);
-        // get the index of the current selection
+        // store the selectionIndex for use during updateItems()
         let selectionIndex = stageFilePicker.items.findIndex(
           (item) => item.resource && item.resource.uri.fsPath === selection.resource.uri.fsPath
         );
@@ -314,9 +310,14 @@ async function activate(context) {
             vscode.commands.executeCommand(commands.stageAll);
           } else if (selection.command === commands.unstageAll) {
             vscode.commands.executeCommand(commands.unstageAll);
-          } else { //   selected a file
-            diffFile(selection)
-            // do not focus git sidebar
+          } else { // selected a file
+            // if previewing diffs
+            if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
+              // move focus to editor
+              vscode.commands.executeCommand("workbench.action.focusActiveEditorGroup")
+            } else {
+              diffFile(selection)
+            }
           }
         }
       });
@@ -346,10 +347,9 @@ async function activate(context) {
         repoEventListener.dispose();
         // remove when context
         vscode.commands.executeCommand("setContext", whenContext, false);
-        // maybe make this optional? not sure
 
         // only focus on git sidebar if files were staged?
-        vscode.commands.executeCommand("workbench.scm.focus");
+        // vscode.commands.executeCommand("workbench.scm.focus");
       });
 
 
