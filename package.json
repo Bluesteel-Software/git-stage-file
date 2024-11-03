@@ -33,19 +33,13 @@
     "whenContext": [
       {
         "key": "QuickStageVisible",
-        "description": "Focus is on the QuickStage file picker",
+        "description": "QuickStage file picker is visible",
         "type": "boolean"
       }
     ],
     "commands": [
       {
         "command": "quickStage.quickStage",
-        "title": "QuickStage",
-        "category": "Git",
-        "icon": "$(versions)"
-      },
-      {
-        "command": "quickStage.diffFile",
         "title": "QuickStage",
         "category": "Git",
         "icon": "$(versions)"
@@ -59,28 +53,10 @@
         "mac": "cmd+s"
       },
       {
-        "key": "ctrl+s",
-        "command": "quickStage.focusQuickStage",
-        "when": "QuickStageVisible",
-        "mac": "cmd+s"
-      },
-      {
         "key": "space",
         "command": "quickStage.spacebar",
         "when": "QuickStageVisible",
         "mac": "space"
-      },
-      {
-        "key": "ctrl+shift+s",
-        "command": "quickStage.stageAll",
-        "when": "QuickStageVisible",
-        "mac": "cmd+shift+s"
-      },
-      {
-        "key": "ctrl+shift+u",
-        "command": "quickStage.unstageAll",
-        "when": "QuickStageVisible",
-        "mac": "cmd+shift+u"
       }
     ]
   },
