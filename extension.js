@@ -301,28 +301,6 @@ async function activate(context) {
       // |        Input Handling        |
       // |------------------------------|
 
-      //   on Enter
-      // ------------
-
-      stageFilePicker.onDidChangeSelection(([selection]) => {
-        if (selection) {
-          if (selection.command === commands.stageAll) {
-            vscode.commands.executeCommand(commands.stageAll);
-          } else if (selection.command === commands.unstageAll) {
-            vscode.commands.executeCommand(commands.unstageAll);
-          } else { // selected a file
-            // if previewing diffs
-            if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
-              // move focus to editor
-              vscode.commands.executeCommand("workbench.action.focusActiveEditorGroup")
-            } else {
-              diffFile(selection)
-            }
-          }
-        }
-      });
-
-
       //   on Space
       // ------------
 
@@ -338,6 +316,31 @@ async function activate(context) {
         }
       };
 
+      let acceptedSelection = false;
+
+      //   on Enter
+      // ------------
+
+      stageFilePicker.onDidChangeSelection(([selection]) => {
+        if (selection) {
+          if (selection.command === commands.stageAll) {
+            vscode.commands.executeCommand(commands.stageAll);
+          } else if (selection.command === commands.unstageAll) {
+            vscode.commands.executeCommand(commands.unstageAll);
+          } else { // selected a file
+            // if previewing diffs
+            acceptedSelection = true;
+            if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
+              // move focus to editor
+              vscode.commands.executeCommand('workbench.action.keepEditor')
+              vscode.commands.executeCommand("workbench.action.focusActiveEditorGroup")
+            } else {
+              diffFile(selection)
+            }
+          }
+        }
+      });
+
 
       //   on Esc
       // ----------
@@ -348,8 +351,14 @@ async function activate(context) {
         // remove when context
         vscode.commands.executeCommand("setContext", whenContext, false);
 
-        // only focus on git sidebar if files were staged?
-        // vscode.commands.executeCommand("workbench.scm.focus");
+        // if previewing diffs do not close the diff on 'Enter'
+        if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && !acceptedSelection){
+          const [selection] = stageFilePicker.activeItems;
+          const activeEditor = vscode.window.activeTextEditor;
+          if (activeEditor && activeEditor.document.uri.fsPath === selection.resource.uri.fsPath) {
+            vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+          }
+        }
       });
 
 
