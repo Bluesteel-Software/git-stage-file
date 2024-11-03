@@ -227,23 +227,6 @@ async function activate(context) {
         };
       }
 
-
-      //   Open File
-      // -------------
-
-
-
-      //   Diff File
-      // -------------
-
-      function diffFile(selection){
-        vscode.commands.executeCommand(
-          "vscode.diff",
-          selection.resource.resource.leftUri,
-          selection.resource.resource.rightUri,
-        );
-      }
-
       //   Stage File
       // --------------
 
@@ -289,6 +272,34 @@ async function activate(context) {
       //   Discard File
       // ----------------
 
+      async function discardFile(selection){
+        try {
+          await exec(`git checkout -q -- ${selection.resource.uri.fsPath}`, { cwd: repository.rootUri.fsPath });
+        } catch (err) {
+          console.log(err);
+          vscode.window.showErrorMessage(
+            `Failed to discard file: ${path.basename(filepath)}`
+          );
+        }
+        vscode.commands.executeCommand("git.refresh")
+        // vscode.commands.executeCommand("git.clean", selection.resource)
+      }
+
+      //   Open File
+      // -------------
+
+
+
+      //   Diff File
+      // -------------
+
+      function diffFile(selection){
+        vscode.commands.executeCommand(
+          "vscode.diff",
+          selection.resource.resource.leftUri,
+          selection.resource.resource.rightUri,
+        );
+      }
 
 
 
@@ -306,13 +317,15 @@ async function activate(context) {
 
       stageFilePicker.onSpacebar = ([selection]) => {
         if (selection) {
-          if (selection.command === commands.stageAll) {
-            vscode.commands.executeCommand(commands.stageAll);
-          } else if (selection.command === commands.unstageAll) {
-            vscode.commands.executeCommand(commands.unstageAll);
-          } else { //   selected a file
-            toggleStage(selection)
-          }
+
+          discardFile(selection)
+          // if (selection.command === commands.stageAll) {
+          //   vscode.commands.executeCommand(commands.stageAll);
+          // } else if (selection.command === commands.unstageAll) {
+          //   vscode.commands.executeCommand(commands.unstageAll);
+          // } else { //   selected a file
+          //   toggleStage(selection)
+          // }
         }
       };
 
