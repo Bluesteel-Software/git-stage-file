@@ -57,6 +57,18 @@
         "command": "quickStage.spacebar",
         "when": "QuickStageVisible",
         "mac": "space"
+      },
+      {
+        "key": "shift+ctrl+s",
+        "command": "git.stageAll",
+        "when": "QuickStageVisible",
+        "mac": "shift+cmd+s"
+      },
+      {
+        "key": "shift+ctrl+u",
+        "command": "git.unstageAll",
+        "when": "QuickStageVisible",
+        "mac": "shift+cmd+u"
       }
     ]
   },
