@@ -21,6 +21,17 @@
   ],
   "main": "./extension.js",
   "contributes": {
+    "configuration": {
+        "type": "object",
+        "title": "Quick Stage",
+        "properties": {
+            "quickStage.previewDiff": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether or not to diff preview the file while using Quick Stage."
+            }
+        }
+    },
     "menus": {
       "scm/title": [
         {
@@ -69,6 +80,26 @@
         "command": "git.unstageAll",
         "when": "QuickStageVisible",
         "mac": "shift+cmd+u"
+      },
+      {
+        "key": "alt+up",
+        "command": "editorScroll",
+        "when": "QuickStageVisible",
+        "args":{
+          "to": "up",
+          "by": "line"
+        },
+        "mac": "ctrl+up"
+      },
+      {
+        "key": "alt+down",
+        "command": "editorScroll",
+        "when": "QuickStageVisible",
+        "args":{
+          "to": "down",
+          "by": "line"
+        },
+        "mac": "ctrl+down"
       }
     ]
   },
