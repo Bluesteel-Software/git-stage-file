@@ -356,11 +356,19 @@ async function activate(context) {
       //   on Arrow Keys
       // -----------------
 
-      stageFilePicker.onDidChangeActive(() => {
-        // console.log('onDidChangeActive()',);
-      })
-
-
+      stageFilePicker.onDidChangeActive(([selection]) => {
+        if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
+          vscode.commands.executeCommand(
+            "vscode.diff",
+            selection.resource.resource.leftUri,
+            selection.resource.resource.rightUri,
+            '',
+            {
+              preview: true,
+              preserveFocus: true
+          });
+        }
+      });
 
 
     }),
