@@ -10,7 +10,7 @@ const isMacOS = os.platform() === "darwin";
 
 let stageFilePicker;
 
-const whenContext = "QuickStageFocused";
+const whenContext = "QuickStageVisible";
 
 const extPrefix = "quickStage";
 
