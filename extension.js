@@ -60,8 +60,7 @@ async function activate(context) {
 
     vscode.commands.registerCommand(commands.quickStage, async () => {
 
-      // set When context
-      vscode.commands.executeCommand("setContext", whenContext, true);
+      vscode.commands.executeCommand("setContext", whenContext, true); // set When context
 
       function exit(){
         if (stageFilePicker){stageFilePicker.dispose()};
@@ -147,10 +146,16 @@ async function activate(context) {
       stageFilePicker.updateItems = (index=0) => {
         // reset typed input
         stageFilePicker.value = "";
+
         const { stagedChanges, unstagedChanges } = getChanges()
+        // changes might be discarded...
+        if (unstagedChanges.length === 0 && stagedChanges.length === 0) {
+          return exit(); // no changes. exit.
+        }
         // update changes cache
         stageFilePicker.stagedChanges = stagedChanges
         stageFilePicker.unstagedChanges = unstagedChanges
+
         // create quickPick items
         const stagedItems = stagedChanges.map(createQuickPickItem);
         const unstagedItems = unstagedChanges.map(createQuickPickItem);
@@ -375,7 +380,6 @@ async function activate(context) {
       // ----------
 
       stageFilePicker.onDidHide(() => {
-        exit();
         // if previewing diffs do not close the activeEditor on 'Enter' or 'openFile'
         if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && !acceptedSelection){
           const [selection] = stageFilePicker.activeItems;
@@ -384,6 +388,7 @@ async function activate(context) {
             vscode.commands.executeCommand('workbench.action.closeActiveEditor');
           }
         }
+        exit();
       })
     }),
 
