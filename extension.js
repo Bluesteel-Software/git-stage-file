@@ -401,8 +401,8 @@ async function activate(context) {
       }
     }),
 
-    //   on ⌘Backspace
-    // -----------------
+    //   on Delete
+    // -------------
 
     vscode.commands.registerCommand(commands.discardChanges, () => {
       if (stageFilePicker){

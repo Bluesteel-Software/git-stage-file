@@ -70,10 +70,10 @@
         "mac": "space"
       },
       {
-        "key": "ctrl+backspace",
+        "key": "delete",
         "command": "quickStage.discardChanges",
         "when": "QuickStageVisible",
-        "mac": "cmd+backspace"
+        "mac": "delete"
       },
       {
         "key": "alt+up",
