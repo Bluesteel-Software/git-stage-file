@@ -76,6 +76,12 @@
         "mac": "delete"
       },
       {
+        "key": "ctrl+backspace",
+        "command": "quickStage.discardChanges",
+        "when": "QuickStageVisible",
+        "mac": "cmd+backspace"
+      },
+      {
         "key": "ctrl+o",
         "command": "quickStage.openFile",
         "when": "QuickStageVisible",
