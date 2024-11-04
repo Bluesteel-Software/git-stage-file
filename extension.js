@@ -112,12 +112,8 @@ async function activate(context) {
             }
             updateTimer = setTimeout(() => {
               const index = stageFilePicker.selectionIndex
-              if ( index ){
-                stageFilePicker.updateItems(index);
-                stageFilePicker.selectionIndex = null
-              } else {
-                stageFilePicker.updateItems();
-              }
+              stageFilePicker.updateItems(index ? index : 0);
+              stageFilePicker.selectionIndex = null
             }, 50);
           }
         }
@@ -131,6 +127,9 @@ async function activate(context) {
       stageFilePicker.placeholder = "Select a file to Stage or Unstage ...";
       stageFilePicker.stagedChanges = stagedChanges
       stageFilePicker.unstagedChanges = unstagedChanges
+      stageFilePicker.onDidTriggerItemButton(({button, item}) => button.trigger(item))
+
+
 
       //   Update UI
       // -------------
@@ -216,13 +215,42 @@ async function activate(context) {
         const filepath = resource.uri.fsPath;
         const directory = path.relative(repository.rootUri.fsPath, path.dirname(resource.uri.fsPath));
         const file = path.basename(filepath);
-        const stageSymbol = resource.status < 5 ? "$(remove)" : "$(add)";
-        const label = `${stageSymbol} ${file}`;
+        const isStaged =  resource.status < 5;
+        const stageSymbol = isStaged ? "diff-remove" : "diff-insert";
+        const label = `$(${stageSymbol}) ${file}`;
         const description = directory === "" ? "" : `      ${directory}${path.sep}`;
+        let buttons = []
+
+        // optionally add discard changes
+        if (!isStaged){
+          // discard Changes
+          buttons.push({
+            iconPath: new vscode.ThemeIcon("discard"),
+            tooltip: "Discard Changes (Delete)",
+            trigger: () => {
+              vscode.commands.executeCommand(commands.discardChanges)
+            }
+          })
+        }
+        buttons = [
+          ...buttons,
+          // go to file
+
+          // toggle stage
+          {
+            iconPath: new vscode.ThemeIcon(stageSymbol),
+            tooltip: `${isStaged ? "Unstage" : "Stage"} File (Space)`,
+            trigger: (selection) => {
+              stageFilePicker.toggleStage(selection)
+            }
+          },
+        ]
+
         return {
           label,
           description,
           resource,
+          buttons,
         };
       }
 
@@ -311,6 +339,7 @@ async function activate(context) {
             default:
               // if previewing diffs
               acceptedSelection = true;
+              stageFilePicker.ignoreFocusOut = false;
               if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
                 // move focus to editor
                 vscode.commands.executeCommand('workbench.action.keepEditor')
@@ -385,6 +414,7 @@ async function activate(context) {
 
     vscode.commands.registerCommand(commands.discardChanges, () => {
       if (stageFilePicker){
+        stageFilePicker.ignoreFocusOut = true;
         const [selection] = stageFilePicker.activeItems;
         if (selection){
           switch (selection.command) {
@@ -399,8 +429,6 @@ async function activate(context) {
         }
       }
     })
-
-
   );
 }
 
