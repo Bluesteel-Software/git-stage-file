@@ -1,6 +1,7 @@
 # Git QuickStage
 
 Preview and Stage files using only your keyboard.
+⌨️
 
 ## Usage
  

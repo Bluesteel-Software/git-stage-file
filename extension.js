@@ -405,7 +405,6 @@ async function activate(context) {
       }
     }),
 
-
     //   ^Up & ^Down
     // ---------------
 
@@ -479,7 +478,6 @@ async function activate(context) {
         }
       }
     }),
-
   );
 }
 

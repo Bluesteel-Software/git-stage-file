@@ -10,8 +10,7 @@
     "vscode": "^1.91.0"
   },
   "categories": [
-    "Other",
-    "SCM Providers"
+    "Other"
   ],
   "extensionDependencies": [
     "vscode.git"
