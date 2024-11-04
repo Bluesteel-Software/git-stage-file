@@ -5,7 +5,7 @@
   "repository": "http://www.github.com/floppydisco/git-stage-file",
   "publisher": "bs-code",
   "icon": "icon.png",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "engines": {
     "vscode": "^1.91.0"
   },
@@ -22,15 +22,15 @@
   "main": "./extension.js",
   "contributes": {
     "configuration": {
-        "type": "object",
-        "title": "Quick Stage",
-        "properties": {
-            "quickStage.previewDiff": {
-                "type": "boolean",
-                "default": true,
-                "description": "Whether or not to diff preview the file while using Quick Stage."
-            }
+      "type": "object",
+      "title": "Quick Stage",
+      "properties": {
+        "quickStage.previewDiff": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether or not to diff preview the file while using Quick Stage."
         }
+      }
     },
     "menus": {
       "scm/title": [
