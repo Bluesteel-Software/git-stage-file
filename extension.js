@@ -19,9 +19,8 @@ const commands = {
   openFile: `${extPrefix}.openFile`,
   scrollEditorUp: `${extPrefix}.scrollEditorUp`,
   scrollEditorDown: `${extPrefix}.scrollEditorDown`,
-
-  stageAll: 'git.stageAll',
-  unstageAll: 'git.unstageAll',
+  stageAll: `${extPrefix}.stageAll`,
+  unstageAll: `${extPrefix}.unstageAll`,
 };
 
 const STATUS_SYMBOLS = [
@@ -80,7 +79,8 @@ async function activate(context) {
       }
 
       let repository;
-      if (repositories.length > 1){
+      const multipleRepositories = repositories.length > 1;
+      if (multipleRepositories){
         const items = repositories.map(repo => ({
           label: path.basename(repo.rootUri.fsPath),
           description: repo.state.HEAD?.name || '',
@@ -126,6 +126,8 @@ async function activate(context) {
       stageFilePicker = vscode.window.createQuickPick();
       stageFilePicker.keepScrollPosition = true;
       stageFilePicker.placeholder = "Select a file to Stage or Unstage ...";
+      stageFilePicker.repository = repository
+      stageFilePicker.multipleRepositories = multipleRepositories
       stageFilePicker.stagedChanges = stagedChanges
       stageFilePicker.unstagedChanges = unstagedChanges
       stageFilePicker.onDidTriggerItemButton(({button, item}) => button.trigger(item))
@@ -458,6 +460,25 @@ async function activate(context) {
       }
     }),
 
+    vscode.commands.registerCommand(commands.stageAll, () => {
+      if (stageFilePicker) {
+        if (stageFilePicker.multipleRepositories){
+          vscode.commands.executeCommand("git.stage",...stageFilePicker.stagedChanges.map(item => item.resource), ...stageFilePicker.unstagedChanges.map(item => item.resource));
+        } else {
+          vscode.commands.executeCommand("git.stageAll");
+        }
+      }
+    }),
+
+    vscode.commands.registerCommand(commands.unstageAll, () => {
+      if (stageFilePicker) {
+        if (stageFilePicker.multipleRepositories){
+          vscode.commands.executeCommand("git.unstage",...stageFilePicker.stagedChanges.map(item => item.resource), ...stageFilePicker.unstagedChanges.map(item => item.resource));
+        } else {
+          vscode.commands.executeCommand("git.unstageAll");
+        }
+      }
+    }),
 
   );
 }

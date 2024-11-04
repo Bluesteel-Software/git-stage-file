@@ -95,13 +95,13 @@
       },
       {
         "key": "shift+ctrl+s",
-        "command": "git.stageAll",
+        "command": "quickStage.stageAll",
         "when": "QuickStageVisible",
         "mac": "shift+cmd+s"
       },
       {
         "key": "shift+ctrl+u",
-        "command": "git.unstageAll",
+        "command": "quickStage.unstageAll",
         "when": "QuickStageVisible",
         "mac": "shift+cmd+u"
       }
