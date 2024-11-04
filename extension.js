@@ -7,14 +7,11 @@ const os = require("os");
 const exec = util.promisify(cp.exec);
 const isMacOS = os.platform() === "darwin";
 
-
 let stageFilePicker;
 let updateTimer;
 
-const whenContext = "QuickStageVisible";
-
 const extPrefix = "quickStage";
-
+const whenContext = "QuickStageVisible";
 const commands = {
   quickStage: `${extPrefix}.quickStage`,
   toggleChanges: `${extPrefix}.toggleChanges`,
@@ -114,11 +111,12 @@ async function activate(context) {
               clearTimeout(updateTimer)
             }
             updateTimer = setTimeout(() => {
-              stageFilePicker.updateItems();
               const index = stageFilePicker.selectionIndex
               if ( index ){
-                stageFilePicker.setActiveItem(index)
+                stageFilePicker.updateItems(index);
                 stageFilePicker.selectionIndex = null
+              } else {
+                stageFilePicker.updateItems();
               }
             }, 50);
           }
@@ -137,7 +135,7 @@ async function activate(context) {
       //   Update UI
       // -------------
 
-      stageFilePicker.updateItems = () => {
+      stageFilePicker.updateItems = (index=0) => {
         // reset typed input
         stageFilePicker.value = "";
         const { stagedChanges, unstagedChanges } = getChanges()
@@ -188,19 +186,17 @@ async function activate(context) {
           ...unstagedChangesGroup,
         ];
 
-      };
-
-      stageFilePicker.setActiveItem = (index=0) => {
+        //   set active item
+        // -------------------
         while (
           stageFilePicker.items[index].command === commands.stageAll ||
           stageFilePicker.items[index].command === commands.unstageAll ||
           stageFilePicker.items[index].kind === vscode.QuickPickItemKind.Separator
         ) { index++ };
         stageFilePicker.activeItems = [stageFilePicker.items[index]];
-      }
+      };
 
       stageFilePicker.updateItems();
-      stageFilePicker.setActiveItem();
       stageFilePicker.show();
 
 
@@ -301,6 +297,7 @@ async function activate(context) {
       //   on Enter
       // ------------
 
+      // these are both called when .canSelectMultiple=false
       // stageFilePicker.onDidAccept()
       stageFilePicker.onDidChangeSelection(([selection]) => {
         if (selection) {
@@ -401,7 +398,6 @@ async function activate(context) {
           }
         }
       }
-
     })
 
 
