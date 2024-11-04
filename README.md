@@ -19,9 +19,9 @@ or you might add something like this:
 
 ### Controls:
 
-`UP` and `DOWN` to select a file to preview
+`UP` / `DOWN` => Select a file to preview
 
-`Enter` => Close QuickStage and shift focus to the diff editor
+`Enter` => Close QuickStage and move to diff editor
 
 `Space` => Stage / Unstage a file
 
@@ -58,6 +58,5 @@ note:
 ---
 
 - Quick Stage now works with multiple repositories in the workspace!
-- Quick Stage
 
-Let me know if there are any improvements that could be made to this extension!
+Let me know if there are any improvements or you have ideas for this extension!
