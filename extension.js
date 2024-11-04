@@ -234,32 +234,14 @@ async function activate(context) {
       // --------------
 
       stageFilePicker.toggleStage = async (selection) => {
-        const filepath = selection.resource.uri.fsPath
         const isStaged = selection.resource.status < 5
-        const command = isStaged
-          ? `git reset ${filepath}`
-          : `git add -f ${filepath}`
-        try {
-          await exec(command, { cwd: repository.rootUri.fsPath });
-        } catch (err) {
-          console.log(err);
-          vscode.window.showErrorMessage(
-            `Failed to ${isStaged ? "unstage" : "stage"} file: ${path.basename(filepath)}`
-          );
+        if (isStaged){
+          vscode.commands.executeCommand("git.unstage",selection.resource.resource)
+        }else{
+          vscode.commands.executeCommand("git.stage",selection.resource.resource)
         }
-        vscode.commands.executeCommand("git.refresh")
 
-        // these work very intermittently maybe only with untracked files.
-        // could potentially be debugged
-        // if (isStaged){
-        //   console.log('unstaging file',resource);
-        //   vscode.commands.executeCommand("git.unstage",resource)
-        // }else{
-        //   console.log('staging file',resource);
-        //   vscode.commands.executeCommand("git.stage",resource)
-        // }
-
-        // store the selectionIndex for use during updateItems()
+        // store the selectionIndex for use in repoEventListener()
         let selectionIndex = stageFilePicker.items.findIndex(
           (item) => item.resource && item.resource.uri.fsPath === selection.resource.uri.fsPath
         );
