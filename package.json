@@ -76,6 +76,12 @@
         "mac": "delete"
       },
       {
+        "key": "ctrl+o",
+        "command": "quickStage.openFile",
+        "when": "QuickStageVisible",
+        "mac": "cmd+o"
+      },
+      {
         "key": "alt+up",
         "command": "quickStage.scrollEditorUp",
         "when": "QuickStageVisible",
