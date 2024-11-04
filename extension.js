@@ -8,6 +8,7 @@ const exec = util.promisify(cp.exec);
 const isMacOS = os.platform() === "darwin";
 
 let stageFilePicker;
+let repoEventListener;
 let updateTimer;
 
 const extPrefix = "quickStage";
@@ -62,11 +63,17 @@ async function activate(context) {
       // set When context
       vscode.commands.executeCommand("setContext", whenContext, true);
 
+      function exit(){
+        if (stageFilePicker){stageFilePicker.dispose()};
+        if (repoEventListener){repoEventListener.dispose()};
+        vscode.commands.executeCommand("setContext", whenContext, false); // remove when context
+      }
+
       // get gitAPI
       const gitAPI = useGitApi()
       if (!gitAPI) {
         vscode.window.showInformationMessage('SCM extension not found')
-        return;
+        return exit();
       }
 
       //   Repository
@@ -75,7 +82,7 @@ async function activate(context) {
       const repositories = useGitApi().repositories;
       if (!repositories) {
         vscode.window.showInformationMessage('No Git repositories found')
-        return;
+        return exit();
       }
 
       let repository;
@@ -89,19 +96,19 @@ async function activate(context) {
         const selected = await vscode.window.showQuickPick(items, {
           placeHolder: 'Select a repository',
         });
-        if (!selected) return; // exit on 'esc'
+        if (!selected) return exit(); // exit on 'esc'
         repository = selected.repository;
       } else { // only one repository
         repository = repositories.pop();
       }
 
       const {stagedChanges, unstagedChanges}= getChanges()
-      if (!unstagedChanges && !stagedChanges) {
+      if (unstagedChanges.length === 0 && stagedChanges.length === 0) {
         vscode.window.showInformationMessage("No Changes");
-        return; // no changes. exit.
+        return exit(); // no changes. exit.
       }
 
-      const repoEventListener = repository.repository.onDidRunOperation(()=>{
+      repoEventListener = repository.repository.onDidRunOperation(()=>{
         if (stageFilePicker){
           const { stagedChanges, unstagedChanges} = getChanges()
           if (
@@ -368,10 +375,7 @@ async function activate(context) {
       // ----------
 
       stageFilePicker.onDidHide(() => {
-        stageFilePicker.dispose();
-        repoEventListener.dispose();
-        vscode.commands.executeCommand("setContext", whenContext, false); // remove when context
-
+        exit();
         // if previewing diffs do not close the activeEditor on 'Enter' or 'openFile'
         if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && !acceptedSelection){
           const [selection] = stageFilePicker.activeItems;
