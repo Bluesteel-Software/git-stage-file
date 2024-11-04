@@ -65,9 +65,27 @@
       },
       {
         "key": "space",
-        "command": "quickStage.spacebar",
+        "command": "quickStage.toggleChanges",
         "when": "QuickStageVisible",
         "mac": "space"
+      },
+      {
+        "key": "ctrl+backspace",
+        "command": "quickStage.discardChanges",
+        "when": "QuickStageVisible",
+        "mac": "cmd+backspace"
+      },
+      {
+        "key": "alt+up",
+        "command": "quickStage.scrollEditorUp",
+        "when": "QuickStageVisible",
+        "mac": "ctrl+up"
+      },
+      {
+        "key": "alt+down",
+        "command": "quickStage.scrollEditorDown",
+        "when": "QuickStageVisible",
+        "mac": "ctrl+down"
       },
       {
         "key": "shift+ctrl+s",
@@ -80,26 +98,6 @@
         "command": "git.unstageAll",
         "when": "QuickStageVisible",
         "mac": "shift+cmd+u"
-      },
-      {
-        "key": "alt+up",
-        "command": "editorScroll",
-        "when": "QuickStageVisible",
-        "args":{
-          "to": "up",
-          "by": "line"
-        },
-        "mac": "ctrl+up"
-      },
-      {
-        "key": "alt+down",
-        "command": "editorScroll",
-        "when": "QuickStageVisible",
-        "args":{
-          "to": "down",
-          "by": "line"
-        },
-        "mac": "ctrl+down"
       }
     ]
   },

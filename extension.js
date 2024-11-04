@@ -17,8 +17,11 @@ const extPrefix = "quickStage";
 
 const commands = {
   quickStage: `${extPrefix}.quickStage`,
-  focusQuickStage: `${extPrefix}.focusQuickStage`,
-  onSpace: `${extPrefix}.spacebar`,
+  toggleChanges: `${extPrefix}.toggleChanges`,
+  discardChanges: `${extPrefix}.discardChanges`,
+  scrollEditorUp: `${extPrefix}.scrollEditorUp`,
+  scrollEditorDown: `${extPrefix}.scrollEditorDown`,
+
   stageAll: 'git.stageAll',
   unstageAll: 'git.unstageAll',
 };
@@ -230,7 +233,7 @@ async function activate(context) {
       //   Stage File
       // --------------
 
-      async function toggleStage(selection){
+      stageFilePicker.toggleStage = async (selection) => {
         const filepath = selection.resource.uri.fsPath
         const isStaged = selection.resource.status < 5
         const command = isStaged
@@ -272,17 +275,8 @@ async function activate(context) {
       //   Discard File
       // ----------------
 
-      async function discardFile(selection){
-        try {
-          await exec(`git checkout -q -- ${selection.resource.uri.fsPath}`, { cwd: repository.rootUri.fsPath });
-        } catch (err) {
-          console.log(err);
-          vscode.window.showErrorMessage(
-            `Failed to discard file: ${path.basename(filepath)}`
-          );
-        }
-        vscode.commands.executeCommand("git.refresh")
-        // vscode.commands.executeCommand("git.clean", selection.resource)
+      stageFilePicker.discardFile = (selection) => {
+        vscode.commands.executeCommand("git.clean", selection.resource.resource)
       }
 
       //   Open File
@@ -293,67 +287,62 @@ async function activate(context) {
       //   Diff File
       // -------------
 
-      function diffFile(selection){
+      stageFilePicker.diffFile = (selection, options={}) => {
         vscode.commands.executeCommand(
           "vscode.diff",
           selection.resource.resource.leftUri,
           selection.resource.resource.rightUri,
+          '',
+          options
         );
       }
-
-
-
-
-
-
-
 
       // |------------------------------|
       // |        Input Handling        |
       // |------------------------------|
 
-      //   on Space
-      // ------------
+      //   on Arrow Keys
+      // -----------------
 
-      stageFilePicker.onSpacebar = ([selection]) => {
-        if (selection) {
-
-          discardFile(selection)
-          // if (selection.command === commands.stageAll) {
-          //   vscode.commands.executeCommand(commands.stageAll);
-          // } else if (selection.command === commands.unstageAll) {
-          //   vscode.commands.executeCommand(commands.unstageAll);
-          // } else { //   selected a file
-          //   toggleStage(selection)
-          // }
+      stageFilePicker.onDidChangeActive(([selection]) => {
+        if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
+          stageFilePicker.diffFile(selection,{
+              preview: true,
+              preserveFocus: true
+          });
         }
-      };
+      });
+
 
       let acceptedSelection = false;
 
       //   on Enter
       // ------------
 
+      // stageFilePicker.onDidAccept()
       stageFilePicker.onDidChangeSelection(([selection]) => {
         if (selection) {
-          if (selection.command === commands.stageAll) {
-            vscode.commands.executeCommand(commands.stageAll);
-          } else if (selection.command === commands.unstageAll) {
-            vscode.commands.executeCommand(commands.unstageAll);
-          } else { // selected a file
-            // if previewing diffs
-            acceptedSelection = true;
-            if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
-              // move focus to editor
-              vscode.commands.executeCommand('workbench.action.keepEditor')
-              vscode.commands.executeCommand("workbench.action.focusActiveEditorGroup")
-            } else {
-              diffFile(selection)
-            }
+          switch (selection.command) {
+            case commands.stageAll:
+              vscode.commands.executeCommand(commands.stageAll);
+              break;
+            case commands.unstageAll:
+              vscode.commands.executeCommand(commands.unstageAll);
+              break;
+            default:
+              // if previewing diffs
+              acceptedSelection = true;
+              if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
+                // move focus to editor
+                vscode.commands.executeCommand('workbench.action.keepEditor')
+                vscode.commands.executeCommand("workbench.action.focusActiveEditorGroup")
+              } else {
+                stageFilePicker.diffFile(selection)
+              }
+            break;
           }
         }
       });
-
 
       //   on Esc
       // ----------
@@ -361,8 +350,7 @@ async function activate(context) {
       stageFilePicker.onDidHide(() => {
         stageFilePicker.dispose();
         repoEventListener.dispose();
-        // remove when context
-        vscode.commands.executeCommand("setContext", whenContext, false);
+        vscode.commands.executeCommand("setContext", whenContext, false); // remove when context
 
         // if previewing diffs do not close the diff on 'Enter'
         if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && !acceptedSelection){
@@ -372,46 +360,68 @@ async function activate(context) {
             vscode.commands.executeCommand('workbench.action.closeActiveEditor');
           }
         }
-      });
-
-
-      //   on Arrow Keys
-      // -----------------
-
-      stageFilePicker.onDidChangeActive(([selection]) => {
-        if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
-          vscode.commands.executeCommand(
-            "vscode.diff",
-            selection.resource.resource.leftUri,
-            selection.resource.resource.rightUri,
-            '',
-            {
-              preview: true,
-              preserveFocus: true
-          });
-        }
-      });
-
-
+      })
     }),
 
+    //   on Space
+    // ------------
 
-    // |----------------------------------------|
-    // |        Commands for keybindings        |
-    // |----------------------------------------|
-
-    vscode.commands.registerCommand(commands.onSpace, () => {
+    vscode.commands.registerCommand(commands.toggleChanges, () => {
       if (stageFilePicker) {
-        stageFilePicker.onSpacebar(stageFilePicker.activeItems);
+        const [selection] = stageFilePicker.activeItems
+        if (selection) {
+          switch (selection.command) {
+            case commands.stageAll:
+              vscode.commands.executeCommand(commands.stageAll);
+              break;
+            case commands.unstageAll:
+              vscode.commands.executeCommand(commands.unstageAll);
+              break;
+            default:
+              stageFilePicker.toggleStage(selection)
+            break;
+          }
+        }
       }
     }),
 
-    // vscode.commands.registerCommand(commands.focusQuickStage, () => {
-    //   console.log("focusing on quickPick");
-    //   if (stageFilePicker) {
-    //     vscode.commands.executeCommand("quickInput.first")
-    //   }
-    // }),
+
+    //   ^Up & ^Down
+    // ---------------
+
+    vscode.commands.registerCommand(commands.scrollEditorUp, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
+        vscode.commands.executeCommand("editorScroll",{ to: "up", by: "line"})
+      }
+    }),
+
+    vscode.commands.registerCommand(commands.scrollEditorDown, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
+        vscode.commands.executeCommand("editorScroll",{ to: "down", by: "line"})
+      }
+    }),
+
+    //   on ⌘Backspace
+    // -----------------
+
+    vscode.commands.registerCommand(commands.discardChanges, () => {
+      if (stageFilePicker){
+        const [selection] = stageFilePicker.activeItems;
+        if (selection){
+          switch (selection.command) {
+            case commands.stageAll:
+              return; // do nothing
+            case commands.unstageAll:
+              return; // do nothing
+            default:
+              stageFilePicker.discardFile(selection)
+            break;
+          }
+        }
+      }
+
+    })
+
 
   );
 }
