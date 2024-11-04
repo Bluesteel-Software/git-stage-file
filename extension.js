@@ -16,6 +16,7 @@ const commands = {
   quickStage: `${extPrefix}.quickStage`,
   toggleChanges: `${extPrefix}.toggleChanges`,
   discardChanges: `${extPrefix}.discardChanges`,
+  openFile: `${extPrefix}.openFile`,
   scrollEditorUp: `${extPrefix}.scrollEditorUp`,
   scrollEditorDown: `${extPrefix}.scrollEditorDown`,
 
@@ -235,7 +236,13 @@ async function activate(context) {
         buttons = [
           ...buttons,
           // go to file
-
+          {
+            iconPath: new vscode.ThemeIcon("go-to-file"),
+            tooltip: `Open File (${isMacOS ? "⌘O" : "Ctrl+O"})`,
+            trigger: (selection) => {
+              stageFilePicker.openFile(selection)
+            }
+          },
           // toggle stage
           {
             iconPath: new vscode.ThemeIcon(stageSymbol),
@@ -253,6 +260,8 @@ async function activate(context) {
           buttons,
         };
       }
+
+      let acceptedSelection = false;
 
       //   Stage File
       // --------------
@@ -288,7 +297,10 @@ async function activate(context) {
       //   Open File
       // -------------
 
-
+      stageFilePicker.openFile = (selection) => {
+        acceptedSelection = true;
+        vscode.commands.executeCommand("vscode.open", selection.resource.uri);
+      }
 
       //   Diff File
       // -------------
@@ -318,9 +330,6 @@ async function activate(context) {
           });
         }
       });
-
-
-      let acceptedSelection = false;
 
       //   on Enter
       // ------------
@@ -360,7 +369,7 @@ async function activate(context) {
         repoEventListener.dispose();
         vscode.commands.executeCommand("setContext", whenContext, false); // remove when context
 
-        // if previewing diffs do not close the diff on 'Enter'
+        // if previewing diffs do not close the activeEditor on 'Enter' or 'openFile'
         if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && !acceptedSelection){
           const [selection] = stageFilePicker.activeItems;
           const activeEditor = vscode.window.activeTextEditor;
@@ -428,7 +437,27 @@ async function activate(context) {
           }
         }
       }
-    })
+    }),
+
+    vscode.commands.registerCommand(commands.openFile, () => {
+      if (stageFilePicker){
+        stageFilePicker.ignoreFocusOut = false;
+        const [selection] = stageFilePicker.activeItems;
+        if (selection){
+          switch (selection.command) {
+            case commands.stageAll:
+              return; // do nothing
+            case commands.unstageAll:
+              return; // do nothing
+            default:
+              stageFilePicker.openFile(selection)
+            break;
+          }
+        }
+      }
+    }),
+
+
   );
 }
 
