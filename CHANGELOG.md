@@ -1,9 +1,12 @@
 # Change Log
 
-All notable changes to the "git-stage-file" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+`0.0.0` - some pretty janky stuff
 
-## [Unreleased]
+`0.3.0` - refactored to utilize vscode git extension API
 
-- Initial release
+`0.3.1` - bug fix for when context not being removed
+
+`0.3.2` - bug fix for QuickStage not automatically closing if all changes are discarded
+
+
