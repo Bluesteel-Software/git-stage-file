@@ -214,15 +214,17 @@ async function activate(context) {
 
       function createQuickPickItem(resource) {
         const filepath = resource.uri.fsPath;
-        const directory = path.relative(repository.rootUri.fsPath, path.dirname(resource.uri.fsPath));
+        let directory = path.relative(repository.rootUri.fsPath, path.dirname(resource.uri.fsPath));
+        if (directory !== "") directory = `${directory}${path.sep}`;
         const file = path.basename(filepath);
         const isStaged =  resource.status < 5;
         const stageSymbol = isStaged ? "diff-remove" : "diff-insert";
+        const statusSymbol = STATUS_SYMBOLS[resource.status]
         const label = `$(${stageSymbol}) ${file}`;
-        const description = directory === "" ? "" : `      ${directory}${path.sep}`;
-        let buttons = []
+        const description = `     ${statusSymbol ? statusSymbol : " "}     ${directory}`;
 
-        // optionally add discard changes
+        let buttons = []
+        // add discard changes only for unstaged files
         if (!isStaged){
           // discard Changes
           buttons.push({
@@ -252,7 +254,6 @@ async function activate(context) {
             }
           },
         ]
-
         return {
           label,
           description,
