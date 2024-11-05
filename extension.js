@@ -15,7 +15,7 @@ const extPrefix = "quickStage";
 const whenContext = "QuickStageVisible";
 const commands = {
   quickStage: `${extPrefix}.quickStage`,
-  toggleChanges: `${extPrefix}.toggleChanges`,
+  openDiff: `${extPrefix}.openDiff`,
   discardChanges: `${extPrefix}.discardChanges`,
   openFile: `${extPrefix}.openFile`,
   scrollEditorUp: `${extPrefix}.scrollEditorUp`,
@@ -137,7 +137,6 @@ async function activate(context) {
       stageFilePicker.stagedChanges = stagedChanges
       stageFilePicker.unstagedChanges = unstagedChanges
       stageFilePicker.onDidTriggerItemButton(({button, item}) => button.trigger(item))
-
 
 
       //   Update UI
@@ -276,8 +275,6 @@ async function activate(context) {
         };
       }
 
-      let acceptedSelection = false;
-
       //   Stage File
       // --------------
 
@@ -301,7 +298,6 @@ async function activate(context) {
         stageFilePicker.selectionIndex = selectionIndex
       }
 
-
       //   Discard File
       // ----------------
 
@@ -313,7 +309,6 @@ async function activate(context) {
       // -------------
 
       stageFilePicker.openFile = (selection) => {
-        acceptedSelection = true;
         vscode.commands.executeCommand("vscode.open", selection.resource.uri);
       }
 
@@ -349,28 +344,21 @@ async function activate(context) {
       //   on Enter
       // ------------
 
-      // these are both called when .canSelectMultiple=false
-      // stageFilePicker.onDidAccept()
+      // these are both called on 'enter' when .canSelectMany is false
+      // except .onDidAccept() is not passed .activeItems as params
+
+      // stageFilePicker.onDidAccept();
       stageFilePicker.onDidChangeSelection(([selection]) => {
         if (selection) {
           switch (selection.command) {
-            case commands.stageAll:
+            case commands.stageAll: // selection was stageAll
               vscode.commands.executeCommand(commands.stageAll);
               break;
-            case commands.unstageAll:
+            case commands.unstageAll: // selection was unstageAll
               vscode.commands.executeCommand(commands.unstageAll);
               break;
-            default:
-              // if previewing diffs
-              acceptedSelection = true;
-              stageFilePicker.ignoreFocusOut = false;
-              if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
-                // move focus to editor
-                vscode.commands.executeCommand('workbench.action.keepEditor')
-                vscode.commands.executeCommand("workbench.action.focusActiveEditorGroup")
-              } else {
-                stageFilePicker.diffFile(selection)
-              }
+            default: // selection was a file
+              stageFilePicker.toggleStage(selection)
             break;
           }
         }
@@ -395,19 +383,17 @@ async function activate(context) {
     //   on Space
     // ------------
 
-    vscode.commands.registerCommand(commands.toggleChanges, () => {
+    vscode.commands.registerCommand(commands.openDiff, () => {
       if (stageFilePicker) {
         const [selection] = stageFilePicker.activeItems
-        if (selection) {
+        if (selection){
           switch (selection.command) {
             case commands.stageAll:
-              vscode.commands.executeCommand(commands.stageAll);
-              break;
+              return; // do nothing
             case commands.unstageAll:
-              vscode.commands.executeCommand(commands.unstageAll);
-              break;
+              return; // do nothing
             default:
-              stageFilePicker.toggleStage(selection)
+              stageFilePicker.diffFile(selection,{preserveFocus: true, preview: false});
             break;
           }
         }
