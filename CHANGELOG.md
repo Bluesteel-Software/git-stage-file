@@ -9,4 +9,4 @@
 
 `0.3.2` - bug fix for QuickStage not automatically closing if all changes are discarded
 
-
+`0.3.3` - added SCM Focus feature
