@@ -22,6 +22,7 @@ const commands = {
   scrollEditorDown: `${extPrefix}.scrollEditorDown`,
   stageAll: `${extPrefix}.stageAll`,
   unstageAll: `${extPrefix}.unstageAll`,
+  focusGitSidebar: "workbench.scm.focus",
 };
 
 const STATUS_SYMBOLS = [
@@ -172,6 +173,13 @@ async function activate(context) {
           })`,
           command: commands.unstageAll,
         };
+        const commitItem = {
+          description: `      Commit Changes (${
+            isMacOS ? "⌘C" : "Ctrl+C"
+          })`,
+          alwaysShow: true,
+          command: commands.focusGitSidebar,
+        };
 
         const unstagedChangesGroup = [];
         if (stagedChanges.length > 0) {
@@ -196,6 +204,10 @@ async function activate(context) {
         stagedChangesGroup.push(...stagedItems);
 
         stageFilePicker.items = [
+          commitItem,
+          {
+            kind: vscode.QuickPickItemKind.Separator
+          },
           ...stagedChangesGroup,
           ...unstagedChangesGroup,
         ];
@@ -203,6 +215,7 @@ async function activate(context) {
         //   set active item
         // -------------------
         while (
+          stageFilePicker.items[index].command === commands.focusGitSidebar ||
           stageFilePicker.items[index].command === commands.stageAll ||
           stageFilePicker.items[index].command === commands.unstageAll ||
           stageFilePicker.items[index].kind === vscode.QuickPickItemKind.Separator
@@ -359,6 +372,9 @@ async function activate(context) {
             case commands.unstageAll: // selection was unstageAll
               vscode.commands.executeCommand(commands.unstageAll);
               break;
+            case commands.focusGitSidebar:
+              vscode.commands.executeCommand(commands.focusGitSidebar);
+              break;
             default: // selection was a file
               stageFilePicker.toggleStage(selection)
             break;
@@ -382,7 +398,7 @@ async function activate(context) {
         }
 
         if (vscode.workspace.getConfiguration(extPrefix).get('focusScmSidebarOnExit', true)){
-          vscode.commands.executeCommand("workbench.scm.focus");
+          vscode.commands.executeCommand(commands.focusGitSidebar);
         }
       })
 
