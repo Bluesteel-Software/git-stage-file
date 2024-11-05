@@ -333,6 +333,7 @@ async function activate(context) {
       // -----------------
 
       stageFilePicker.onDidChangeActive(([selection]) => {
+        // preview the diff for the selected file
         if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
           stageFilePicker.diffFile(selection,{
               preview: true,
@@ -368,16 +369,18 @@ async function activate(context) {
       // ----------
 
       stageFilePicker.onDidHide(() => {
-        // if previewing diffs do not close the activeEditor on 'Enter' or 'openFile'
-        if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && !acceptedSelection){
-          const [selection] = stageFilePicker.activeItems;
-          const activeEditor = vscode.window.activeTextEditor;
-          if (activeEditor && activeEditor.document.uri.fsPath === selection.resource.uri.fsPath) {
-            vscode.commands.executeCommand('workbench.action.closeActiveEditor');
-          }
-        }
         exit();
+        if (vscode.workspace.getConfiguration(extPrefix).get('closePreviewOnExit', true)){
+          const tabs = vscode.window.tabGroups.activeTabGroup.tabs
+          tabs.forEach((tab) => {
+            if (tab.isPreview){
+              vscode.window.tabGroups.close(tab);
+            }
+          })
+        }
       })
+
+    // end of QuickStage command
     }),
 
     //   on Space
