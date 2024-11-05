@@ -371,6 +371,7 @@ async function activate(context) {
 
       stageFilePicker.onDidHide(() => {
         exit();
+
         if (vscode.workspace.getConfiguration(extPrefix).get('closePreviewOnExit', true)){
           const tabs = vscode.window.tabGroups.activeTabGroup.tabs
           tabs.forEach((tab) => {
@@ -379,9 +380,12 @@ async function activate(context) {
             }
           })
         }
+
+        if (vscode.workspace.getConfiguration(extPrefix).get('focusScmSidebarOnExit', true)){
+          vscode.commands.executeCommand("workbench.scm.focus");
+        }
       })
 
-    // end of QuickStage command
     }),
 
     //   on Space
