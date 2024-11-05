@@ -109,6 +109,7 @@ async function activate(context) {
 
       repoEventListener = repository.repository.onDidRunOperation(()=>{
         if (stageFilePicker){
+          if (stageFilePicker.ignoreFocusOut){stageFilePicker.ignoreFocusOut=false}
           const { stagedChanges, unstagedChanges} = getChanges()
           if (
             stagedChanges.length !== stageFilePicker.stagedChanges.length ||
@@ -460,7 +461,7 @@ async function activate(context) {
     vscode.commands.registerCommand(commands.stageAll, () => {
       if (stageFilePicker) {
         if (stageFilePicker.multipleRepositories){
-          vscode.commands.executeCommand("git.stage",...stageFilePicker.stagedChanges.map(item => item.resource), ...stageFilePicker.unstagedChanges.map(item => item.resource));
+          vscode.commands.executeCommand("git.stage", ...stageFilePicker.unstagedChanges.map(item => item.resource));
         } else {
           vscode.commands.executeCommand("git.stageAll");
         }
@@ -470,7 +471,7 @@ async function activate(context) {
     vscode.commands.registerCommand(commands.unstageAll, () => {
       if (stageFilePicker) {
         if (stageFilePicker.multipleRepositories){
-          vscode.commands.executeCommand("git.unstage",...stageFilePicker.stagedChanges.map(item => item.resource), ...stageFilePicker.unstagedChanges.map(item => item.resource));
+          vscode.commands.executeCommand("git.unstage",...stageFilePicker.stagedChanges.map(item => item.resource));
         } else {
           vscode.commands.executeCommand("git.unstageAll");
         }
