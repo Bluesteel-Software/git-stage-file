@@ -28,6 +28,11 @@
           "type": "boolean",
           "default": true,
           "description": "Whether or not to diff preview the file while using Quick Stage."
+        },
+        "quickStage.closePreviewOnExit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether or not to close the previewed diff when exiting Quick Stage."
         }
       }
     },
@@ -64,7 +69,7 @@
       },
       {
         "key": "space",
-        "command": "quickStage.toggleChanges",
+        "command": "quickStage.openDiff",
         "when": "QuickStageVisible",
         "mac": "space"
       },
