@@ -37,16 +37,18 @@ or you might add a custom keybinding:
 
 ## Settings
 
-### Focus SCM Sidebar:
+### AutoFocus the SCM Sidebar:
  
-By default, **Quick Stage** will automatically shift focus to the SCM Sidebar when **Quick Stage** is closed.
+By default, **Quick Stage** will automatically shift focus to the SCM view when **Quick Stage** is closed.
+
+**Quick Stage** will **NOT** auto focus the SCM view if you open or diff a file using `⌘O` or `Space` instead, focus will move to the editor.
+
 #### `focusScmSidebarOnExit`
 You may turn this off with `"quickStage.focusScmSidebarOnExit": false`
 
-Note: To ensure that Focus always goes to the Commit input box also add:
-- `"scm.autoReveal": false,` 
+Note: To ensure that Focus always moves to the Commit input box when opening the SCM view add `"scm.autoReveal": false,` to your `settings.json`
 
-If you do not like auto focusing the SCM sidebar, you can also use the default keybinding `⌘^G` to move focus to SCM. You can change this command to anything you would like with:
+If you choose to turn this feature off, you may also use the default command `⌘^G` => `"workbench.view.scm"`  to move focus to the SCM view. You can change this command to anything you would like with:
 ```
   {
     "key": "your+keybinding",
