@@ -38,10 +38,7 @@ or you might add a custom keybinding:
 
 Mac: `Ctrl` + ( `UP`, `DOWN`, `LEFT`, or `RIGHT` )
 
--or-
-
 PC: `Alt` + ( `UP`, `DOWN`, `LEFT`, or `RIGHT` )
-
 
 
 ## Settings
