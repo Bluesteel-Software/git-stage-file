@@ -67,6 +67,11 @@
     ],
     "keybindings": [
       {
+        "key": "alt+ctrl+s",
+        "command": "quickStage.quickStage",
+        "mac": "alt+cmd+s"
+      },
+      {
         "key": "ctrl+s",
         "command": "quickStage.quickStage",
         "when": "focusedView === 'workbench.scm'",

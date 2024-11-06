@@ -6,15 +6,14 @@
 ## Usage
  
 ### Open: 
-Open QuickStage using `⌘S` / `Ctrl+S` while focused on the SCM sidebar
+There are two ways to open **Quick Stage**.
 
-or you might add a custom keybinding:
-```
-{
-    "key": "your+keybinding",
-    "command": "quickStage.quickStage"
-},
-```
+- `⌘S` / `Ctrl+S` which works whenever you are focused on the SCM sidebar view
+
+- `⌘⌥S` / `Ctrl+Alt+S` Which works at any time
+
+If `⌘⌥S` does not work or conflicts with one our your keybindings you can change this in the keybindings GUI. Search for `quickStage`
+
 
 ### Controls:
 
