@@ -417,13 +417,13 @@ async function activate(context) {
     // ctrl+up => scroll up
     vscode.commands.registerCommand(commands.scrollEditorUp, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
-        vscode.commands.executeCommand("editorScroll",{ to: "up", by: "line"})
+        vscode.commands.executeCommand("editorScroll",{ to: "up", by: "line", value: 3})
       }
     }),
     // ctrl+down => scroll down
     vscode.commands.registerCommand(commands.scrollEditorDown, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
-        vscode.commands.executeCommand("editorScroll",{ to: "down", by: "line"})
+        vscode.commands.executeCommand("editorScroll",{ to: "down", by: "line", value: 3})
       }
     }),
 
