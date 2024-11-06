@@ -46,6 +46,19 @@ function useGitApi (){
   .exports.getAPI(1);
 }
 
+let scrollTimer;
+let scrollCounter = 1;
+
+function getScrollValue(){
+  if (scrollTimer){
+    clearTimeout(scrollTimer);
+  }
+  scrollTimer = setTimeout(() => {
+    scrollCounter = 0;
+  }, 350);
+  return Math.min(Math.floor(1 + Math.log2((++scrollCounter + 15)/15)),5)
+}
+
   //   Activate
   // ------------
 
@@ -416,19 +429,19 @@ async function activate(context) {
     //   Scroll Commands
     // -------------------
 
-    // ctrl+left => scroll left
-    // ctrl+right => scroll right
-
+    // package.json:
+    //  ctrl+left => scroll left
+    //  ctrl+right => scroll right
     // ctrl+up => scroll up
     vscode.commands.registerCommand(commands.scrollEditorUp, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
-        vscode.commands.executeCommand("editorScroll",{ to: "up", by: "line"})
+        vscode.commands.executeCommand("editorScroll",{ to: "up", by: "line", value: getScrollValue()})
       }
     }),
     // ctrl+down => scroll down
     vscode.commands.registerCommand(commands.scrollEditorDown, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
-        vscode.commands.executeCommand("editorScroll",{ to: "down", by: "line"})
+        vscode.commands.executeCommand("editorScroll",{ to: "down", by: "line", value: getScrollValue()})
       }
     }),
 
