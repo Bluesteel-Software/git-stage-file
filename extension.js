@@ -10,6 +10,7 @@ const isMacOS = os.platform() === "darwin";
 let stageFilePicker;
 let repoEventListener;
 let updateTimer;
+let fileWasOpened;
 
 const extPrefix = "quickStage";
 const whenContext = "QuickStageVisible";
@@ -291,13 +292,15 @@ async function activate(context) {
         let selectionIndex = stageFilePicker.items.findIndex(
           (item) => item.resource && item.resource.uri.fsPath === selection.resource.uri.fsPath
         );
-        // if the unstageAll item is added to the list
-        // the desired item is pushed down by one index
+        // if the "unstageAll item" is added to the list
+        // the desired target item is pushed down by one index
         if (stageFilePicker.stagedChanges.length === 0) {
           selectionIndex++;
         }
         stageFilePicker.selectionIndex = selectionIndex
       }
+
+      fileWasOpened = false;
 
       //   Discard File
       // ----------------
@@ -310,7 +313,8 @@ async function activate(context) {
       // -------------
 
       stageFilePicker.openFile = (selection) => {
-        vscode.commands.executeCommand("vscode.open", selection.resource.uri);
+        fileWasOpened = true
+        vscode.commands.executeCommand("vscode.open", selection.resource.uri, { preview: false});
       }
 
       //   Diff File
@@ -381,7 +385,7 @@ async function activate(context) {
           })
         }
 
-        if (vscode.workspace.getConfiguration(extPrefix).get('focusScmSidebarOnExit', true)){
+        if (!fileWasOpened && vscode.workspace.getConfiguration(extPrefix).get('focusScmSidebarOnExit', true)){
           vscode.commands.executeCommand("workbench.scm.focus");
         }
       })
@@ -401,6 +405,7 @@ async function activate(context) {
             case commands.unstageAll:
               return; // do nothing
             default:
+              fileWasOpened = true
               stageFilePicker.diffFile(selection,{preserveFocus: true, preview: false});
             break;
           }
