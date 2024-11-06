@@ -46,7 +46,7 @@ You may turn this off with `"quickStage.focusScmSidebarOnExit": false`
 Note: To ensure that Focus always goes to the Commit input box also add:
 - `"scm.autoReveal": false,` 
 
-The SCM Sidebar can be focused using the default keybinding `⌘^G`, You can change this command to anything you would like with:
+If you do not like auto focusing the SCM sidebar, you can also use the default keybinding `⌘^G` to move focus to SCM. You can change this command to anything you would like with:
 ```
   {
     "key": "your+keybinding",
