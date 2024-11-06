@@ -18,10 +18,10 @@ const commands = {
   openDiff: `${extPrefix}.openDiff`,
   discardChanges: `${extPrefix}.discardChanges`,
   openFile: `${extPrefix}.openFile`,
-  scrollEditorUp: `${extPrefix}.scrollEditorUp`,
-  scrollEditorDown: `${extPrefix}.scrollEditorDown`,
   stageAll: `${extPrefix}.stageAll`,
   unstageAll: `${extPrefix}.unstageAll`,
+  scrollEditorUp: `${extPrefix}.scrollUp`,
+  scrollEditorDown: `${extPrefix}.scrollDown`,
 };
 
 const STATUS_SYMBOLS = [
@@ -408,15 +408,19 @@ async function activate(context) {
       }
     }),
 
-    //   ^Up & ^Down
-    // ---------------
+    //   Scroll Commands
+    // -------------------
 
+    // ctrl+left => scroll left
+    // ctrl+right => scroll right
+
+    // ctrl+up => scroll up
     vscode.commands.registerCommand(commands.scrollEditorUp, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "up", by: "line"})
       }
     }),
-
+    // ctrl+down => scroll down
     vscode.commands.registerCommand(commands.scrollEditorDown, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "down", by: "line"})
