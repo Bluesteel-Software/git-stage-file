@@ -8,3 +8,4 @@
 - `0.3.4` removed extension keybinding for focusing scm view
 - `0.3.5` bug fix SCM Focus when opening or diff-ing files
 - `0.3.6` better background scroll functionality
+- `0.3.7` added global keybinding for opening quickStage
