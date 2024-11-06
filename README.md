@@ -11,7 +11,7 @@ Open QuickStage using `⌘S` / `Ctrl+S` while focused on the SCM sidebar
 or you might add a custom keybinding:
 ```
 {
-    "key": "your-keybinding",
+    "key": "your+keybinding",
     "command": "quickStage.quickStage"
 },
 ```
@@ -27,8 +27,6 @@ or you might add a custom keybinding:
 `Delete` or `⌘Backspace` / `Ctrl+backspace` => Discard the File Changes
 
 `⌘O` / `Ctrl+O` => Open the File in a normal editor
-
-`⌘C` / `Ctrl+C` => Focus the SCM Sidebar
 
 `⌘⇧S` / `Shift+Ctrl+S` => Stage All Files
 
@@ -48,6 +46,14 @@ You may turn this off with `"quickStage.focusScmSidebarOnExit": false`
 Note: To ensure that Focus always goes to the Commit input box also add:
 - `"scm.autoReveal": false,` 
 
+The SCM Sidebar can be focused using the default keybinding `⌘^G`, You can change this command to anything you would like with:
+```
+  {
+    "key": "your+keybinding",
+    "command": "workbench.view.scm",
+    "when": "workbench.scm.active"
+  },
+```
 
 ----
 ### Preview Mode:
