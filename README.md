@@ -1,5 +1,5 @@
 # Git QuickStage
-⌨️ Preview and Stage files using only your keyboard.
+⌨️ Preview and Stage files using the keyboard.
 
 ---
 
@@ -32,7 +32,16 @@ or you might add a custom keybinding:
 
 `⌘⇧U` / `Shift+Ctrl+U` => Unstage All Files
 
-`Escape` => close QuickStage.
+`Escape` => Close QuickStage.
+
+#### Scroll the Editor in the background:
+
+Mac: `Ctrl` + ( `UP`, `DOWN`, `LEFT`, or `RIGHT` )
+
+-or-
+
+PC: `Alt` + ( `UP`, `DOWN`, `LEFT`, or `RIGHT` )
+
 
 
 ## Settings
@@ -62,6 +71,8 @@ If you choose to turn this feature off, you may also use the default command `�
 
 By default, **Quick Stage** will open a diff preview of the current selection.
 
+The Scroll Keybindings are provided so you can review the previewed file without closing **Quick Stage**
+
  **Quick Stage** comes with two settings to customize your preview experience:
  
  #### `previewDiff`
@@ -71,11 +82,6 @@ By default, **Quick Stage** will open a diff preview of the current selection.
  #### `closePreviewOnExit`
  
  Setting `"quickStage.closePreviewOnExit": false,` will leave the diff preview open when **Quick Stage** is closed.  
-
-Keybindings are provided so you may scroll the diff editor in the background, to review the file without closing **Quick Stage**:
-
-- Mac: `Ctrl+UP` / `Ctrl+DOWN` 
-- PC: `Alt+UP` / `Alt+DOWN`
 
 ## Troubleshooting
 
