@@ -98,15 +98,27 @@
       },
       {
         "key": "alt+up",
-        "command": "quickStage.scrollEditorUp",
+        "command": "quickStage.scrollUp",
         "when": "QuickStageVisible",
         "mac": "ctrl+up"
       },
       {
         "key": "alt+down",
-        "command": "quickStage.scrollEditorDown",
+        "command": "quickStage.scrollDown",
         "when": "QuickStageVisible",
         "mac": "ctrl+down"
+      },
+      {
+        "key": "alt+left",
+        "command": "scrollLeft",
+        "when": "QuickStageVisible",
+        "mac": "ctrl+left"
+      },
+      {
+        "key": "alt+right",
+        "command": "scrollRight",
+        "when": "QuickStageVisible",
+        "mac": "ctrl+right"
       },
       {
         "key": "shift+ctrl+s",
