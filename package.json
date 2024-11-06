@@ -97,12 +97,6 @@
         "mac": "cmd+o"
       },
       {
-        "key": "ctrl+c",
-        "command": "workbench.scm.focus",
-        "when": "QuickStageVisible",
-        "mac": "cmd+c"
-      },
-      {
         "key": "alt+up",
         "command": "quickStage.scrollEditorUp",
         "when": "QuickStageVisible",
