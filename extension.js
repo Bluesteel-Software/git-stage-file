@@ -68,9 +68,9 @@ async function activate(context) {
     // UI
     stageFilePicker,
 
-    // |-----------------------------|
-    // |      QuickStagePicker       |
-    // |-----------------------------|
+    // |--------------------------|
+    // |        QuickStage        |
+    // |--------------------------|
 
     vscode.commands.registerCommand(commands.quickStage, async () => {
 
