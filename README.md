@@ -1,5 +1,8 @@
 # Git QuickStage
+
 ⌨️ Preview and Stage files using the keyboard.
+
+[For a detailed article on what you can do with **Quick Stage** go here!](https://medium.com/vs-code-keybindings/staging-files-in-vs-code-with-the-keyboard-2a80d3dc035c)
 
 ---
 
