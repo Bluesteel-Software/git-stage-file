@@ -115,13 +115,13 @@
       },
       {
         "key": "alt+left",
-        "command": "scrollLeft",
+        "command": "quickStage.scrollLeft",
         "when": "QuickStageVisible",
         "mac": "ctrl+left"
       },
       {
         "key": "alt+right",
-        "command": "scrollRight",
+        "command": "quickStage.scrollRight",
         "when": "QuickStageVisible",
         "mac": "ctrl+right"
       },

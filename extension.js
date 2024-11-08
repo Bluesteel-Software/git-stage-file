@@ -23,6 +23,8 @@ const commands = {
   unstageAll: `${extPrefix}.unstageAll`,
   scrollEditorUp: `${extPrefix}.scrollUp`,
   scrollEditorDown: `${extPrefix}.scrollDown`,
+  scrollEditorLeft: `${extPrefix}.scrollLeft`,
+  scrollEditorRight: `${extPrefix}.scrollRight`,
 };
 
 const STATUS_SYMBOLS = [
@@ -429,9 +431,18 @@ async function activate(context) {
     //   Scroll Commands
     // -------------------
 
-    // package.json:
     //  ctrl+left => scroll left
+    vscode.commands.registerCommand(commands.scrollEditorLeft, () => {
+      if (stageFilePicker) {
+        vscode.commands.executeCommand("scrollLeft")
+      }
+    }),
     //  ctrl+right => scroll right
+    vscode.commands.registerCommand(commands.scrollEditorRight, () => {
+      if (stageFilePicker) {
+        vscode.commands.executeCommand("scrollRight")
+      }
+    }),
     // ctrl+up => scroll up
     vscode.commands.registerCommand(commands.scrollEditorUp, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
