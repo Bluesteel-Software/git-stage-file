@@ -1,7 +1,7 @@
 {
   "name": "git-quick-stage",
-  "displayName": "Git QuickStage",
-  "description": "QuickPick menu to stage file changes with keyboard",
+  "displayName": "QuickStage",
+  "description": "An easy menu to stage files using the keyboard",
   "repository": "http://www.github.com/floppydisco/git-stage-file",
   "publisher": "bs-code",
   "icon": "icon.png",
