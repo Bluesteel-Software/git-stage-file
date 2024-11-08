@@ -9,3 +9,5 @@
 - `0.3.5` bug fix SCM Focus when opening or diff-ing files
 - `0.3.6` better background scroll functionality
 - `0.3.7` added global keybinding for opening quickStage
+- `0.3.8` scroll left and scroll rigth commands
+
