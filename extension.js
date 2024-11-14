@@ -14,7 +14,13 @@ let fileWasOpened;
 
 const extPrefix = "quickStage";
 const whenContext = "QuickStageVisible";
-const commands = {
+const KEYS = {
+  closeSidebarsOnOpen: 'closeSidebarsOnOpen',
+  previewDiff: 'previewDiff',
+  closePreviewOnExit: 'closePreviewOnExit',
+  focusScmSidebarOnExit: 'focusScmSidebarOnExit',
+}
+const COMMANDS = {
   quickStage: `${extPrefix}.quickStage`,
   openDiff: `${extPrefix}.openDiff`,
   discardChanges: `${extPrefix}.discardChanges`,
@@ -74,7 +80,7 @@ async function activate(context) {
     // |        QuickStage        |
     // |--------------------------|
 
-    vscode.commands.registerCommand(commands.quickStage, async () => {
+    vscode.commands.registerCommand(COMMANDS.quickStage, async () => {
 
       vscode.commands.executeCommand("setContext", whenContext, true); // set When context
 
@@ -121,6 +127,16 @@ async function activate(context) {
       if (unstagedChanges.length === 0 && stagedChanges.length === 0) {
         vscode.window.showInformationMessage("No Changes");
         return exit(); // no changes. exit.
+      }
+
+      // |-------------------------------|
+      // |        all systems go!        |
+      // |-------------------------------|
+
+      if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.closeSidebarsOnOpen, true)){
+        vscode.commands.executeCommand("workbench.action.closeSidebar");
+        vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
+        vscode.commands.executeCommand("workbench.action.closePanel");
       }
 
       repoEventListener = repository.repository.onDidRunOperation(()=>{
@@ -180,13 +196,13 @@ async function activate(context) {
           description: `      Stage All Changes (${
             isMacOS ? "⌘⇧S" : "Shift+Ctrl+S"
           })`,
-          command: commands.stageAll,
+          command: COMMANDS.stageAll,
         };
         const unstageAllItem = {
           description: `      Unstage All Changes (${
             isMacOS ? "⌘⇧U" : "Shift+Ctrl+U"
           })`,
-          command: commands.unstageAll,
+          command: COMMANDS.unstageAll,
         };
 
         const unstagedChangesGroup = [];
@@ -219,8 +235,8 @@ async function activate(context) {
         //   set active item
         // -------------------
         while (
-          stageFilePicker.items[index].command === commands.stageAll ||
-          stageFilePicker.items[index].command === commands.unstageAll ||
+          stageFilePicker.items[index].command === COMMANDS.stageAll ||
+          stageFilePicker.items[index].command === COMMANDS.unstageAll ||
           stageFilePicker.items[index].kind === vscode.QuickPickItemKind.Separator
         ) { index++ };
         stageFilePicker.activeItems = [stageFilePicker.items[index]];
@@ -261,7 +277,7 @@ async function activate(context) {
             iconPath: new vscode.ThemeIcon("discard"),
             tooltip: "Discard Changes (Delete)",
             trigger: () => {
-              vscode.commands.executeCommand(commands.discardChanges)
+              vscode.commands.executeCommand(COMMANDS.discardChanges)
             }
           })
         }
@@ -354,7 +370,7 @@ async function activate(context) {
 
       stageFilePicker.onDidChangeActive(([selection]) => {
         // preview the diff for the selected file
-        if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
+        if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true) && selection.resource){
           stageFilePicker.diffFile(selection,{
               preview: true,
               preserveFocus: true
@@ -372,11 +388,11 @@ async function activate(context) {
       stageFilePicker.onDidChangeSelection(([selection]) => {
         if (selection) {
           switch (selection.command) {
-            case commands.stageAll: // selection was stageAll
-              vscode.commands.executeCommand(commands.stageAll);
+            case COMMANDS.stageAll: // selection was stageAll
+              vscode.commands.executeCommand(COMMANDS.stageAll);
               break;
-            case commands.unstageAll: // selection was unstageAll
-              vscode.commands.executeCommand(commands.unstageAll);
+            case COMMANDS.unstageAll: // selection was unstageAll
+              vscode.commands.executeCommand(COMMANDS.unstageAll);
               break;
             default: // selection was a file
               stageFilePicker.toggleStage(selection)
@@ -391,7 +407,7 @@ async function activate(context) {
       stageFilePicker.onDidHide(() => {
         exit();
 
-        if (vscode.workspace.getConfiguration(extPrefix).get('closePreviewOnExit', true)){
+        if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.closePreviewOnExit, true)){
           const tabs = vscode.window.tabGroups.activeTabGroup.tabs
           tabs.forEach((tab) => {
             if (tab.isPreview){
@@ -400,7 +416,7 @@ async function activate(context) {
           })
         }
 
-        if (!fileWasOpened && vscode.workspace.getConfiguration(extPrefix).get('focusScmSidebarOnExit', true)){
+        if (!fileWasOpened && vscode.workspace.getConfiguration(extPrefix).get(KEYS.focusScmSidebarOnExit, true)){
           vscode.commands.executeCommand("workbench.scm.focus");
         }
       })
@@ -410,14 +426,14 @@ async function activate(context) {
     //   on Space
     // ------------
 
-    vscode.commands.registerCommand(commands.openDiff, () => {
+    vscode.commands.registerCommand(COMMANDS.openDiff, () => {
       if (stageFilePicker) {
         const [selection] = stageFilePicker.activeItems
         if (selection){
           switch (selection.command) {
-            case commands.stageAll:
+            case COMMANDS.stageAll:
               return; // do nothing
-            case commands.unstageAll:
+            case COMMANDS.unstageAll:
               return; // do nothing
             default:
               fileWasOpened = true
@@ -432,26 +448,26 @@ async function activate(context) {
     // -------------------
 
     //  ctrl+left => scroll left
-    vscode.commands.registerCommand(commands.scrollEditorLeft, () => {
-      if (stageFilePicker) {
+    vscode.commands.registerCommand(COMMANDS.scrollEditorLeft, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("scrollLeft")
       }
     }),
     //  ctrl+right => scroll right
-    vscode.commands.registerCommand(commands.scrollEditorRight, () => {
-      if (stageFilePicker) {
+    vscode.commands.registerCommand(COMMANDS.scrollEditorRight, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("scrollRight")
       }
     }),
     // ctrl+up => scroll up
-    vscode.commands.registerCommand(commands.scrollEditorUp, () => {
-      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
+    vscode.commands.registerCommand(COMMANDS.scrollEditorUp, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "up", by: "line", value: getScrollValue()})
       }
     }),
     // ctrl+down => scroll down
-    vscode.commands.registerCommand(commands.scrollEditorDown, () => {
-      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true)) {
+    vscode.commands.registerCommand(COMMANDS.scrollEditorDown, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "down", by: "line", value: getScrollValue()})
       }
     }),
@@ -459,15 +475,15 @@ async function activate(context) {
     //   on Delete
     // -------------
 
-    vscode.commands.registerCommand(commands.discardChanges, () => {
+    vscode.commands.registerCommand(COMMANDS.discardChanges, () => {
       if (stageFilePicker){
         stageFilePicker.ignoreFocusOut = true;
         const [selection] = stageFilePicker.activeItems;
         if (selection){
           switch (selection.command) {
-            case commands.stageAll:
+            case COMMANDS.stageAll:
               return; // do nothing
-            case commands.unstageAll:
+            case COMMANDS.unstageAll:
               return; // do nothing
             default:
               stageFilePicker.discardFile(selection)
@@ -477,15 +493,15 @@ async function activate(context) {
       }
     }),
 
-    vscode.commands.registerCommand(commands.openFile, () => {
+    vscode.commands.registerCommand(COMMANDS.openFile, () => {
       if (stageFilePicker){
         stageFilePicker.ignoreFocusOut = false;
         const [selection] = stageFilePicker.activeItems;
         if (selection){
           switch (selection.command) {
-            case commands.stageAll:
+            case COMMANDS.stageAll:
               return; // do nothing
-            case commands.unstageAll:
+            case COMMANDS.unstageAll:
               return; // do nothing
             default:
               stageFilePicker.openFile(selection)
@@ -495,7 +511,7 @@ async function activate(context) {
       }
     }),
 
-    vscode.commands.registerCommand(commands.stageAll, () => {
+    vscode.commands.registerCommand(COMMANDS.stageAll, () => {
       if (stageFilePicker) {
         if (stageFilePicker.multipleRepositories){
           vscode.commands.executeCommand("git.stage", ...stageFilePicker.unstagedChanges.map(item => item.resource));
@@ -505,7 +521,7 @@ async function activate(context) {
       }
     }),
 
-    vscode.commands.registerCommand(commands.unstageAll, () => {
+    vscode.commands.registerCommand(COMMANDS.unstageAll, () => {
       if (stageFilePicker) {
         if (stageFilePicker.multipleRepositories){
           vscode.commands.executeCommand("git.unstage",...stageFilePicker.stagedChanges.map(item => item.resource));

@@ -5,7 +5,7 @@
   "repository": "http://www.github.com/floppydisco/git-stage-file",
   "publisher": "bs-code",
   "icon": "icon.png",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "engines": {
     "vscode": "^1.91.0"
   },
@@ -27,17 +27,22 @@
         "quickStage.previewDiff": {
           "type": "boolean",
           "default": true,
-          "description": "Whether or not to diff preview the file while using Quick Stage."
+          "description": "Diff preview the selected file in the background while using Quick Stage."
+        },
+        "quickStage.closeSidebarsOnOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Close the Sidebar, Auxiliary Bar, and Panel when opening Quick Stage."
         },
         "quickStage.focusScmSidebarOnExit": {
           "type": "boolean",
           "default": true,
-          "description": "Whether or not to automatically move focus to the SCM Sidebar when closing Quick Stage."
+          "description": "Automatically focus the SCM Sidebar when exiting Quick Stage."
         },
         "quickStage.closePreviewOnExit": {
           "type": "boolean",
           "default": true,
-          "description": "Whether or not to close the previewed diff when closing Quick Stage."
+          "description": "Close the Diff preview when exiting Quick Stage."
         }
       }
     },
