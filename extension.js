@@ -82,12 +82,6 @@ async function activate(context) {
 
     vscode.commands.registerCommand(COMMANDS.quickStage, async () => {
 
-      if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.closeAllSidebarsOnOpen, true)){
-        vscode.commands.executeCommand("workbench.action.closeSidebar");
-        vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
-        vscode.commands.executeCommand("workbench.action.closePanel");
-      }
-
       vscode.commands.executeCommand("setContext", whenContext, true); // set When context
 
       function exit(){
@@ -133,6 +127,16 @@ async function activate(context) {
       if (unstagedChanges.length === 0 && stagedChanges.length === 0) {
         vscode.window.showInformationMessage("No Changes");
         return exit(); // no changes. exit.
+      }
+
+      // |-------------------------------|
+      // |        all systems go!        |
+      // |-------------------------------|
+
+      if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.closeAllSidebarsOnOpen, true)){
+        vscode.commands.executeCommand("workbench.action.closeSidebar");
+        vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
+        vscode.commands.executeCommand("workbench.action.closePanel");
       }
 
       repoEventListener = repository.repository.onDidRunOperation(()=>{
