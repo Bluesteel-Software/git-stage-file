@@ -11,52 +11,60 @@
 ### Open: 
 There are two ways to open **Quick Stage**.
 
-- `⌘S` / `Ctrl+S` which works whenever you are focused on the SCM sidebar view
+- **(⌘S)** \ **(Ctrl+S)** which works whenever you are focused on the SCM sidebar view
 
-- `⌘⌥S` / `Ctrl+Alt+S` Which works at any time
+- **(⌘⌥S)** \ **(Ctrl+Alt+S)** Which works at any time
 
-If `⌘⌥S` does not work or conflicts with one our your keybindings you can change this in the keybindings GUI. Search for `quickStage`
+If **(⌘⌥S)** does not work or conflicts with one our your keybindings you can change this in the keybindings GUI. Search for `quickStage`
 
 
 ### Controls:
 
-`UP` / `DOWN` => Select a file to preview
+**(UP)** \ **(DOWN)** => Select a file to preview
 
-`Enter` => Stage / Unstage a file
+**(Enter)** => Stage \ Unstage a file
 
-`Space` => Open a Diff Editor for the selected file in the background
+**(Space)** => Open a Diff Editor for the selected file in the background
 
-`Delete` or `⌘Backspace` / `Ctrl+backspace` => Discard the File Changes
+**(Delete)** -or- **(⌘Backspace)** \ **(Ctrl+backspace)** => Discard the File Changes
 
-`⌘O` / `Ctrl+O` => Open the File in a normal editor
+**(⌘O)** \ **(Ctrl+O)** => Open the File in a normal editor
 
-`⌘⇧S` / `Shift+Ctrl+S` => Stage All Files
+**(⌘⇧S)** \ **(Shift+Ctrl+S)** => Stage All Files
 
-`⌘⇧U` / `Shift+Ctrl+U` => Unstage All Files
+**(⌘⇧U)** \ **(Shift+Ctrl+U)** => Unstage All Files
 
-`Escape` => Close QuickStage.
+**(Escape)** => Close QuickStage.
 
 #### Scroll the Editor in the background:
 
-Mac: `Ctrl` + ( `UP`, `DOWN`, `LEFT`, or `RIGHT` )
+Mac: **(Ctrl)** + [ **(UP)**, **(DOWN)**, **(LEFT)**, or **(RIGHT)** ]
 
-PC: `Alt` + ( `UP`, `DOWN`, `LEFT`, or `RIGHT` )
+PC: **(Alt)** + [ **(UP)**, **(DOWN)**, **(LEFT)**, or **(RIGHT)** ]
 
 
 ## Settings
 
+### Close Sidebars When Quick Stage is Opened:
+
+#### `closeSidebarsOnOpen`
+**Quick Stage** automatically closes the Sidebar, AuxBar, and Panel when opened to make viewing file diffs easier.
+This feature is ignored if `previewDiff` is turned off. 
+
+Turn off this feature with: `"quickStage.closeSidebarsOnOpen": false,`
+
 ### AutoFocus the SCM Sidebar:
  
-By default, **Quick Stage** will automatically shift focus to the SCM view when **Quick Stage** is closed.
-
-**Quick Stage** will **NOT** auto focus the SCM view if you open or diff a file using `⌘O` or `Space` instead, focus will move to the editor.
-
 #### `focusScmSidebarOnExit`
-You may turn this off with `"quickStage.focusScmSidebarOnExit": false`
+**Quick Stage** will automatically shift focus to the SCM view when **Quick Stage** is closed.
+
+**Quick Stage** will **NOT** auto focus the SCM view if you open a file **(⌘O)** or diff a file **(Space)**.
+
+Turn off this feature with: `"quickStage.focusScmSidebarOnExit": false`
 
 Note: To ensure that Focus always moves to the Commit input box when opening the SCM view add `"scm.autoReveal": false,` to your `settings.json`
 
-If you choose to turn this feature off, you may also use the default command `⌘^G` => `"workbench.view.scm"`  to move focus to the SCM view. You can change this command to anything you would like with:
+If you choose to turn this feature off, you may also use the default command **(⌘^G)** => `"workbench.view.scm"`  to move focus to the SCM view. You can change this command to anything you would like with:
 ```
   {
     "key": "your+keybinding",
@@ -67,20 +75,20 @@ If you choose to turn this feature off, you may also use the default command `�
 
 ----
 ### Preview Mode:
+**Quick Stage** comes with two settings to customize the Preview behaviour:
 
-By default, **Quick Stage** will open a diff preview of the current selection.
+#### `previewDiff`
+**Quick Stage** opens a diff preview of the selected file in the background while **Quick Stage** is open.
 
-The Scroll Keybindings are provided so you can review the previewed file without closing **Quick Stage**
+The **Scroll Keybindings** are provided so you can review the previewed file without closing **Quick Stage**.
 
- **Quick Stage** comes with two settings to customize your preview experience:
+Turn off this feature with: `"quickStage.previewDiff": false,`
+
+#### `closePreviewOnExit`
+**Quick Stage** automatically closes the Preview Editor when exited to keep the workspace clean.
  
- #### `previewDiff`
+Turn off this feature with: `"quickStage.closePreviewOnExit": false,`
  
- Setting `"quickStage.previewDiff": false,` will turn off the diff previews that are shown while **Quick Stage** is open.
-
- #### `closePreviewOnExit`
- 
- Setting `"quickStage.closePreviewOnExit": false,` will leave the diff preview open when **Quick Stage** is closed.  
 
 ## Troubleshooting
 
