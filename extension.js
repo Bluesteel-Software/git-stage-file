@@ -15,7 +15,7 @@ let fileWasOpened;
 const extPrefix = "quickStage";
 const whenContext = "QuickStageVisible";
 const KEYS = {
-  closeAllSidebarsOnOpen: 'closeAllSidebarsOnOpen',
+  closeSidebarsOnOpen: 'closeSidebarsOnOpen',
   previewDiff: 'previewDiff',
   closePreviewOnExit: 'closePreviewOnExit',
   focusScmSidebarOnExit: 'focusScmSidebarOnExit',
@@ -133,7 +133,7 @@ async function activate(context) {
       // |        all systems go!        |
       // |-------------------------------|
 
-      if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.closeAllSidebarsOnOpen, true)){
+      if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.closeSidebarsOnOpen, true)){
         vscode.commands.executeCommand("workbench.action.closeSidebar");
         vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
         vscode.commands.executeCommand("workbench.action.closePanel");
