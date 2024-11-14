@@ -16,9 +16,10 @@ const extPrefix = "quickStage";
 const whenContext = "QuickStageVisible";
 const KEYS = {
   closeSidebarsOnOpen: 'closeSidebarsOnOpen',
-  previewDiff: 'previewDiff',
   closePreviewOnExit: 'closePreviewOnExit',
   focusScmSidebarOnExit: 'focusScmSidebarOnExit',
+  passFocusOnOpenDiff: 'passFocusOnOpenDiff',
+  previewDiff: 'previewDiff',
 }
 const COMMANDS = {
   quickStage: `${extPrefix}.quickStage`,
@@ -440,7 +441,11 @@ async function activate(context) {
               return; // do nothing
             default:
               fileWasOpened = true
-              stageFilePicker.diffFile(selection,{preserveFocus: true, preview: false});
+              stageFilePicker.diffFile(selection,
+                {
+                  preview: false,
+                  preserveFocus: !vscode.workspace.getConfiguration(extPrefix).get(KEYS.passFocusOnOpenDiff, false),
+                });
             break;
           }
         }

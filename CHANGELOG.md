@@ -1,6 +1,6 @@
 # Change Log
 
-- `0.3.10` added setting to move focus to diff on (space)
+- `0.3.10` added setting to move focus to diff when opening
 - `0.3.9` added setting to close sidebars when opening Quick Stage
 - `0.3.8` scroll left and scroll right commands
 - `0.3.7` added global keybinding for opening quickStage

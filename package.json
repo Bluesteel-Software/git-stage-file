@@ -24,10 +24,10 @@
       "type": "object",
       "title": "Quick Stage",
       "properties": {
-        "quickStage.previewDiff": {
+        "quickStage.closePreviewOnExit": {
           "type": "boolean",
           "default": true,
-          "description": "Diff preview the selected file in the background while using Quick Stage."
+          "description": "Close the Diff preview when exiting Quick Stage."
         },
         "quickStage.closeSidebarsOnOpen": {
           "type": "boolean",
@@ -39,10 +39,15 @@
           "default": true,
           "description": "Automatically focus the SCM Sidebar when exiting Quick Stage."
         },
-        "quickStage.closePreviewOnExit": {
+        "quickStage.passFocusOnOpenDiff": {
+          "type": "boolean",
+          "default": false,
+          "description": "Pass focus when opening a file in a Diff editor."
+        },
+        "quickStage.previewDiff": {
           "type": "boolean",
           "default": true,
-          "description": "Close the Diff preview when exiting Quick Stage."
+          "description": "Diff preview the selected file in the background while using Quick Stage."
         }
       }
     },
