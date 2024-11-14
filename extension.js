@@ -14,6 +14,12 @@ let fileWasOpened;
 
 const extPrefix = "quickStage";
 const whenContext = "QuickStageVisible";
+const KEYS = {
+  closeAllSidebarsOnOpen: 'closeAllSidebarsOnOpen',
+  previewDiff: 'previewDiff',
+  closePreviewOnExit: 'closePreviewOnExit',
+  focusScmSidebarOnExit: 'focusScmSidebarOnExit',
+}
 const COMMANDS = {
   quickStage: `${extPrefix}.quickStage`,
   openDiff: `${extPrefix}.openDiff`,
@@ -76,6 +82,11 @@ async function activate(context) {
 
     vscode.commands.registerCommand(COMMANDS.quickStage, async () => {
 
+      if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.closeAllSidebarsOnOpen, true)){
+        vscode.commands.executeCommand("workbench.action.closeSidebar");
+        vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
+        vscode.commands.executeCommand("workbench.action.closePanel");
+      }
 
       vscode.commands.executeCommand("setContext", whenContext, true); // set When context
 
@@ -220,7 +231,7 @@ async function activate(context) {
         //   set active item
         // -------------------
         while (
-          stageFilePicker.items[index].command === commands.stageAll ||
+          stageFilePicker.items[index].command === COMMANDS.stageAll ||
           stageFilePicker.items[index].command === COMMANDS.unstageAll ||
           stageFilePicker.items[index].kind === vscode.QuickPickItemKind.Separator
         ) { index++ };
@@ -355,7 +366,7 @@ async function activate(context) {
 
       stageFilePicker.onDidChangeActive(([selection]) => {
         // preview the diff for the selected file
-        if (vscode.workspace.getConfiguration(extPrefix).get('previewDiff', true) && selection.resource){
+        if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true) && selection.resource){
           stageFilePicker.diffFile(selection,{
               preview: true,
               preserveFocus: true
@@ -392,7 +403,7 @@ async function activate(context) {
       stageFilePicker.onDidHide(() => {
         exit();
 
-        if (vscode.workspace.getConfiguration(extPrefix).get('closePreviewOnExit', true)){
+        if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.closePreviewOnExit, true)){
           const tabs = vscode.window.tabGroups.activeTabGroup.tabs
           tabs.forEach((tab) => {
             if (tab.isPreview){
@@ -401,7 +412,7 @@ async function activate(context) {
           })
         }
 
-        if (!fileWasOpened && vscode.workspace.getConfiguration(extPrefix).get('focusScmSidebarOnExit', true)){
+        if (!fileWasOpened && vscode.workspace.getConfiguration(extPrefix).get(KEYS.focusScmSidebarOnExit, true)){
           vscode.commands.executeCommand("workbench.scm.focus");
         }
       })
