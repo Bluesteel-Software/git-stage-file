@@ -133,7 +133,10 @@ async function activate(context) {
       // |        all systems go!        |
       // |-------------------------------|
 
-      if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.closeSidebarsOnOpen, true)){
+      if (
+        vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)
+        && vscode.workspace.getConfiguration(extPrefix).get(KEYS.closeSidebarsOnOpen, true)
+      ){
         vscode.commands.executeCommand("workbench.action.closeSidebar");
         vscode.commands.executeCommand("workbench.action.closeAuxiliaryBar");
         vscode.commands.executeCommand("workbench.action.closePanel");
