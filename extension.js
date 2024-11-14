@@ -74,8 +74,8 @@ function getScrollValue(){
 async function activate(context) {
   context.subscriptions.push(
 
-    // UI
     stageFilePicker,
+    repoEventListener,
 
     // |--------------------------|
     // |        QuickStage        |
