@@ -115,25 +115,25 @@
         "key": "alt+up",
         "command": "quickStage.scrollUp",
         "when": "QuickStageVisible",
-        "mac": "ctrl+up"
+        "mac": "alt+up"
       },
       {
         "key": "alt+down",
         "command": "quickStage.scrollDown",
         "when": "QuickStageVisible",
-        "mac": "ctrl+down"
+        "mac": "alt+down"
       },
       {
         "key": "alt+left",
         "command": "quickStage.scrollLeft",
         "when": "QuickStageVisible",
-        "mac": "ctrl+left"
+        "mac": "alt+left"
       },
       {
         "key": "alt+right",
         "command": "quickStage.scrollRight",
         "when": "QuickStageVisible",
-        "mac": "ctrl+right"
+        "mac": "alt+right"
       },
       {
         "key": "shift+ctrl+s",
