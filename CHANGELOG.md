@@ -1,5 +1,6 @@
 # Change Log
 
+- `0.3.11` changed scroll shortcuts for mac to option
 - `0.3.10` added setting to move focus to diff when opening
 - `0.3.9` added setting to close sidebars when opening Quick Stage
 - `0.3.8` scroll left and scroll right commands
