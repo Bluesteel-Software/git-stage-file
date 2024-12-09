@@ -38,7 +38,7 @@ If **(⌘⌥S)** does not work or conflicts with one our your keybindings you ca
 
 #### Scroll the Editor in the background:
 
-Mac: **(Ctrl)** + [ **(UP)**, **(DOWN)**, **(LEFT)**, or **(RIGHT)** ]
+Mac: **(Option)** + [ **(UP)**, **(DOWN)**, **(LEFT)**, or **(RIGHT)** ]
 
 PC: **(Alt)** + [ **(UP)**, **(DOWN)**, **(LEFT)**, or **(RIGHT)** ]
 
