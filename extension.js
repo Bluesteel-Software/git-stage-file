@@ -239,10 +239,13 @@ async function activate(context) {
         //   set active item
         // -------------------
         while (
+          index >= stageFilePicker.items.length ||
+          stageFilePicker.items[index].command === COMMANDS.unstageAll
+        ) {index--};
+        while (
           stageFilePicker.items[index].command === COMMANDS.stageAll ||
-          stageFilePicker.items[index].command === COMMANDS.unstageAll ||
           stageFilePicker.items[index].kind === vscode.QuickPickItemKind.Separator
-        ) { index++ };
+        ) {index++};
         stageFilePicker.activeItems = [stageFilePicker.items[index]];
       };
 
@@ -323,15 +326,22 @@ async function activate(context) {
           vscode.commands.executeCommand("git.stage",selection.resource.resource)
         }
 
-        // store the selectionIndex for use in repoEventListener()
         let selectionIndex = stageFilePicker.items.findIndex(
           (item) => item.resource && item.resource.uri.fsPath === selection.resource.uri.fsPath
         );
+
+        // if staging a file, move the index to the next item
+        if (!isStaged){
+          selectionIndex++;
+        }
+
         // if the "unstageAll item" is added to the list
         // the desired target item is pushed down by one index
         if (stageFilePicker.stagedChanges.length === 0) {
           selectionIndex++;
         }
+
+        // store the selectionIndex for use in repoEventListener()
         stageFilePicker.selectionIndex = selectionIndex
       }
 
