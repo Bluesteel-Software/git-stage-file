@@ -1,5 +1,6 @@
 # Change Log
 
+- `0.3.13` improved item-index updating when selecting a file
 - `0.3.12` updated readme and medium article for new keybinding
 - `0.3.11` changed scroll shortcuts for mac to option
 - `0.3.10` added setting to move focus to diff when opening
