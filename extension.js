@@ -38,13 +38,13 @@ const STATUS_SYMBOLS = [
   // staged
   'M',  // 0
   'A',  // 1
-  'D',  // 2
+  'Deleted',  // 2
   'R',  // 3
   'C',  // 4
 
   // unstaged
   'M',  // 5
-  'D',  // 6
+  'Deleted',  // 6
   'U',  // 7
   'I',  // 8
 ];
@@ -72,6 +72,11 @@ function getScrollValue(){
   // ------------
 
 async function activate(context) {
+
+
+
+
+
   context.subscriptions.push(
 
     stageFilePicker,
@@ -80,6 +85,7 @@ async function activate(context) {
     // |--------------------------|
     // |        QuickStage        |
     // |--------------------------|
+
 
     vscode.commands.registerCommand(COMMANDS.quickStage, async () => {
 
@@ -123,6 +129,18 @@ async function activate(context) {
       } else { // only one repository
         repository = repositories.pop();
       }
+
+      function fetchDeletedFileContent(uri) {
+        console.log('uri',uri)
+        console.log('uri.path',uri.path.slice(8))
+        console.log('repository',repository)
+
+
+        return repository.show(uri)
+      }
+      vscode.workspace.registerTextDocumentContentProvider('scm-deleted', {
+        provideTextDocumentContent: (uri) => fetchDeletedFileContent(uri)
+      })
 
       const {stagedChanges, unstagedChanges}= getChanges()
       if (unstagedChanges.length === 0 && stagedChanges.length === 0) {
@@ -269,7 +287,9 @@ async function activate(context) {
         const filepath = resource.uri.fsPath;
         let directory = path.relative(repository.rootUri.fsPath, path.dirname(resource.uri.fsPath));
         if (directory !== "") directory = `${directory}${path.sep}`;
-        const file = path.basename(filepath);
+        const file = resource.status == 2 || resource.status == 6
+          ? `===${path.basename(filepath)}===`
+          : path.basename(filepath)
         const isStaged =  resource.status < 5;
         const stageSymbol = isStaged ? "diff-remove" : "diff-insert";
         const statusSymbol = STATUS_SYMBOLS[resource.status]
@@ -357,9 +377,13 @@ async function activate(context) {
       //   Open File
       // -------------
 
-      stageFilePicker.openFile = (selection) => {
+      stageFilePicker.openFile = (selection, options={preview: false}) => {
         fileWasOpened = true
-        vscode.commands.executeCommand("vscode.open", selection.resource.uri, { preview: false});
+        vscode.commands.executeCommand(
+          "vscode.open",
+          selection.resource.uri,
+          options
+        );
       }
 
       //   Diff File
@@ -369,8 +393,9 @@ async function activate(context) {
         vscode.commands.executeCommand(
           "vscode.diff",
           selection.resource.resource.leftUri,
+          // vscode.Uri.parse("untitled:deleted"),
           selection.resource.resource.rightUri,
-          '',
+          '', // title
           options
         );
       }
@@ -383,12 +408,28 @@ async function activate(context) {
       // -----------------
 
       stageFilePicker.onDidChangeActive(([selection]) => {
-        // preview the diff for the selected file
         if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true) && selection.resource){
-          stageFilePicker.diffFile(selection,{
+          // if file is deleted
+          if(selection.resource.status == 2 || selection.resource.status == 6){
+
+
+            console.dir('selection',selection)
+
+            vscode.commands.executeCommand(
+              'vscode.open',
+              vscode.Uri.parse(`scm-deleted:${selection.resource.uri}`),
+              {
+                preview: true,
+                preserveFocus: true
+              })
+
+          } else {
+
+            stageFilePicker.diffFile(selection,{
               preview: true,
               preserveFocus: true
-          });
+            });
+          }
         }
       });
 
