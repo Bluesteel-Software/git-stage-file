@@ -1,5 +1,6 @@
 # Change Log
 
+- `0.3.14` bugfix.moved to new git API properties. now only works with vscode v >1.97
 - `0.3.13` improved item-index updating when selecting a file
 - `0.3.12` updated readme and medium article for new keybinding
 - `0.3.11` changed scroll shortcuts for mac to option
