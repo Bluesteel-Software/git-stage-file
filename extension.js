@@ -303,7 +303,7 @@ async function activate(context) {
           // toggle stage
           {
             iconPath: new vscode.ThemeIcon(stageSymbol),
-            tooltip: `${isStaged ? "Unstage" : "Stage"} File (Space)`,
+            tooltip: `${isStaged ? "Unstage" : "Stage"} File (Enter)`,
             trigger: (selection) => {
               stageFilePicker.toggleStage(selection)
             }
