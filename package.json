@@ -5,9 +5,9 @@
   "repository": "http://www.github.com/floppydisco/git-stage-file",
   "publisher": "bs-code",
   "icon": "icon.png",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "engines": {
-    "vscode": "^1.91.0"
+    "vscode": "^1.97.0"
   },
   "categories": [
     "Other"
