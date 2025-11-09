@@ -368,10 +368,20 @@ async function activate(context) {
       // -------------
 
       stageFilePicker.diffFile = (selection, options={}) => {
+        const fileUri = selection.resource.uri;
+        const headFileUri = fileUri.with({
+          scheme: 'git',
+          path: fileUri.path,
+          query: JSON.stringify({ 
+            path: fileUri.fsPath,
+            ref: 'HEAD'
+          })
+        });
+        
         vscode.commands.executeCommand(
           "vscode.diff",
-          selection.resource.originalUri,
-          selection.resource.uri,
+          headFileUri,
+          fileUri,
           '',
           options
         );
