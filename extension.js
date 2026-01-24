@@ -143,8 +143,6 @@ async function activate(context) {
         vscode.commands.executeCommand("workbench.action.closePanel");
       }
 
-      console.log('repository',repository)
-
       repoEventListener = repository.state.onDidChange(()=>{
         if (stageFilePicker){
           if (stageFilePicker.ignoreFocusOut){stageFilePicker.ignoreFocusOut=false}
@@ -369,22 +367,29 @@ async function activate(context) {
 
       stageFilePicker.diffFile = (selection, options={}) => {
         const fileUri = selection.resource.uri;
-        const headFileUri = fileUri.with({
-          scheme: 'git',
-          path: fileUri.path,
-          query: JSON.stringify({ 
-            path: fileUri.fsPath,
-            ref: 'HEAD'
-          })
-        });
-        
-        vscode.commands.executeCommand(
-          "vscode.diff",
-          headFileUri,
-          fileUri,
-          '',
-          options
-        );
+        if (selection.resource.status === 1 || selection.resource.status === 7) {
+          vscode.commands.executeCommand(
+            "vscode.open",
+            fileUri,
+            options
+          );
+        } else {
+          const headFileUri = fileUri.with({
+            scheme: 'git',
+            query: JSON.stringify({
+              path: fileUri.fsPath,
+              ref: 'HEAD'
+            })
+          });
+
+          vscode.commands.executeCommand(
+            "vscode.diff",
+            headFileUri,
+            selection.resource.uri,
+            '',
+            options
+          );
+        }
       }
 
       // |------------------------------|
