@@ -143,8 +143,6 @@ async function activate(context) {
         vscode.commands.executeCommand("workbench.action.closePanel");
       }
 
-      console.log('repository',repository)
-
       repoEventListener = repository.state.onDidChange(()=>{
         if (stageFilePicker){
           if (stageFilePicker.ignoreFocusOut){stageFilePicker.ignoreFocusOut=false}
