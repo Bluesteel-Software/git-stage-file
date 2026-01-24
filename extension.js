@@ -374,7 +374,6 @@ async function activate(context) {
             options
           );
         } else {
-
           const headFileUri = fileUri.with({
             scheme: 'git',
             query: JSON.stringify({
