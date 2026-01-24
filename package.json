@@ -113,13 +113,13 @@
       },
       {
         "key": "alt+up",
-        "command": "quickStage.scrollPageUp",
+        "command": "quickStage.scrollUp",
         "when": "QuickStageVisible",
         "mac": "alt+up"
       },
       {
         "key": "alt+down",
-        "command": "quickStage.scrollPageDown",
+        "command": "quickStage.scrollDown",
         "when": "QuickStageVisible",
         "mac": "alt+down"
       },

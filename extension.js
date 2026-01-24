@@ -29,8 +29,8 @@ const COMMANDS = {
   openFile: `${extPrefix}.openFile`,
   stageAll: `${extPrefix}.stageAll`,
   unstageAll: `${extPrefix}.unstageAll`,
-  scrollPageUp: `${extPrefix}.scrollPageUp`,
-  scrollPageDown: `${extPrefix}.scrollPageDown`,
+  scrollUp: `${extPrefix}.scrollUp`,
+  scrollDown: `${extPrefix}.scrollDown`,
   scrollRight: `${extPrefix}.scrollRight`,
   scrollLeft: `${extPrefix}.scrollLeft`,
   scrollPrevChange: `${extPrefix}.scrollPrevChange`,
@@ -588,25 +588,25 @@ async function activate(context) {
       }
     }),
     // ctrl+up => scroll up
-    vscode.commands.registerCommand(COMMANDS.scrollPageUp, () => {
+    vscode.commands.registerCommand(COMMANDS.scrollUp, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "up", by: "page"})
       }
     }),
     // ctrl+down => scroll down
-    vscode.commands.registerCommand(COMMANDS.scrollPageDown, () => {
+    vscode.commands.registerCommand(COMMANDS.scrollDown, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "down", by: "page"})
       }
     }),
     vscode.commands.registerCommand(COMMANDS.scrollLeft, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
-        vscode.commands.executeCommand("editorScroll",{ to: "left", by: "page"})
+        vscode.commands.executeCommand("scrollLeft")
       }
     }),
     vscode.commands.registerCommand(COMMANDS.scrollRight, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
-        vscode.commands.executeCommand("editorScroll",{ to: "right", by: "page"})
+        vscode.commands.executeCommand("scrollRight")
       }
     }),
 
