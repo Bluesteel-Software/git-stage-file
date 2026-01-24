@@ -366,6 +366,9 @@ async function activate(context) {
       // -------------
 
       stageFilePicker.diffFile = (selection, options={}) => {
+        
+      // thanks @anatolytimonin and @dannypernik for all your help here!
+        
         const fileUri = selection.resource.uri;
         if (selection.resource.status === 1 || selection.resource.status === 7) {
           vscode.commands.executeCommand(
@@ -401,6 +404,7 @@ async function activate(context) {
 
       stageFilePicker.onDidChangeActive(([selection]) => {
         // preview the diff for the selected file
+        if (!selection) return;
         if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true) && selection.resource){
           stageFilePicker.diffFile(selection,{
               preview: true,
