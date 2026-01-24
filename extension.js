@@ -351,7 +351,10 @@ async function activate(context) {
       // ----------------
 
       stageFilePicker.discardFile = (selection) => {
-        vscode.commands.executeCommand("git.clean", selection.resource.uri)
+        cp.exec(
+          `git restore "${selection.resource.uri.fsPath}"`,
+          { cwd: repository.rootUri.fsPath }
+        );
       }
 
       //   Open File
@@ -366,9 +369,9 @@ async function activate(context) {
       // -------------
 
       stageFilePicker.diffFile = (selection, options={}) => {
-        
+
       // thanks @anatolytimonin and @dannypernik for all your help here!
-        
+
         const fileUri = selection.resource.uri;
         if (selection.resource.status === 1 || selection.resource.status === 7) {
           vscode.commands.executeCommand(
