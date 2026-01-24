@@ -225,8 +225,6 @@ async function activate(context) {
         vscode.commands.executeCommand("workbench.action.closePanel");
       }
 
-      console.log('repository',repository)
-
       repoEventListener = repository.state.onDidChange(()=>{
         if (stageFilePicker){
           if (stageFilePicker.ignoreFocusOut){stageFilePicker.ignoreFocusOut=false}
@@ -435,7 +433,10 @@ async function activate(context) {
       // ----------------
 
       stageFilePicker.discardFile = (selection) => {
-        vscode.commands.executeCommand("git.clean", selection.resource.uri)
+        cp.exec(
+          `git restore "${selection.resource.uri.fsPath}"`,
+          { cwd: repository.rootUri.fsPath }
+        );
       }
 
       //   Open File
@@ -450,13 +451,33 @@ async function activate(context) {
       // -------------
 
       stageFilePicker.diffFile = (selection, options={}) => {
-        vscode.commands.executeCommand(
-          "vscode.diff",
-          selection.resource.originalUri,
-          selection.resource.uri,
-          '',
-          options
-        );
+
+      // thanks @anatolytimonin and @dannypernik for all your help here!
+
+        const fileUri = selection.resource.uri;
+        if (selection.resource.status === 1 || selection.resource.status === 7) {
+          vscode.commands.executeCommand(
+            "vscode.open",
+            fileUri,
+            options
+          );
+        } else {
+          const headFileUri = fileUri.with({
+            scheme: 'git',
+            query: JSON.stringify({
+              path: fileUri.fsPath,
+              ref: 'HEAD'
+            })
+          });
+
+          vscode.commands.executeCommand(
+            "vscode.diff",
+            headFileUri,
+            selection.resource.uri,
+            '',
+            options
+          );
+        }
       }
 
       // |------------------------------|
@@ -468,6 +489,7 @@ async function activate(context) {
 
       stageFilePicker.onDidChangeActive(([selection]) => {
         // preview the diff for the selected file
+        if (!selection) return;
         if (vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true) && selection.resource){
           stageFilePicker.diffFile(selection,{
               preview: true,
