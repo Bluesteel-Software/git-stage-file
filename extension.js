@@ -29,10 +29,12 @@ const COMMANDS = {
   openFile: `${extPrefix}.openFile`,
   stageAll: `${extPrefix}.stageAll`,
   unstageAll: `${extPrefix}.unstageAll`,
-  scrollEditorUp: `${extPrefix}.scrollUp`,
-  scrollEditorDown: `${extPrefix}.scrollDown`,
-  scrollEditorLeft: `${extPrefix}.scrollLeft`,
-  scrollEditorRight: `${extPrefix}.scrollRight`,
+  scrollPageUp: `${extPrefix}.scrollPageUp`,
+  scrollPageDown: `${extPrefix}.scrollPageDown`,
+  scrollRight: `${extPrefix}.scrollRight`,
+  scrollLeft: `${extPrefix}.scrollLeft`,
+  scrollPrevChange: `${extPrefix}.scrollPrevChange`,
+  scrollNextChange: `${extPrefix}.scrollNextChange`,
 };
 
 const STATUS_SYMBOLS = [
@@ -572,29 +574,39 @@ async function activate(context) {
     // -------------------
 
     //  ctrl+left => jump to previous changed range (10 lines before)
-    vscode.commands.registerCommand(COMMANDS.scrollEditorLeft, async () => {
+    vscode.commands.registerCommand(COMMANDS.scrollPrevChange, async () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         const editor = vscode.window.activeTextEditor;
         await jumpToChange(editor, 'prev');
       }
     }),
     //  ctrl+right => jump to next changed range (10 lines before)
-    vscode.commands.registerCommand(COMMANDS.scrollEditorRight, async () => {
+    vscode.commands.registerCommand(COMMANDS.scrollNextChange, async () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         const editor = vscode.window.activeTextEditor;
         await jumpToChange(editor, 'next');
       }
     }),
     // ctrl+up => scroll up
-    vscode.commands.registerCommand(COMMANDS.scrollEditorUp, () => {
+    vscode.commands.registerCommand(COMMANDS.scrollPageUp, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "up", by: "page"})
       }
     }),
     // ctrl+down => scroll down
-    vscode.commands.registerCommand(COMMANDS.scrollEditorDown, () => {
+    vscode.commands.registerCommand(COMMANDS.scrollPageDown, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "down", by: "page"})
+      }
+    }),
+    vscode.commands.registerCommand(COMMANDS.scrollLeft, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
+        vscode.commands.executeCommand("editorScroll",{ to: "left", by: "page"})
+      }
+    }),
+    vscode.commands.registerCommand(COMMANDS.scrollRight, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
+        vscode.commands.executeCommand("editorScroll",{ to: "right", by: "page"})
       }
     }),
 
