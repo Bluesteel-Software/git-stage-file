@@ -264,13 +264,69 @@ async function activate(context) {
       // -----------------
 
       stageFilePicker = vscode.window.createQuickPick();
+
       stageFilePicker.keepScrollPosition = true;
       stageFilePicker.placeholder = "Select a file to Stage or Unstage ...";
-      stageFilePicker.repository = repository
-      stageFilePicker.multipleRepositories = multipleRepositories
-      stageFilePicker.stagedChanges = stagedChanges
-      stageFilePicker.unstagedChanges = unstagedChanges
-      stageFilePicker.onDidTriggerItemButton(({button, item}) => button.trigger(item))
+      stageFilePicker.repository = repository;
+      stageFilePicker.stagedChanges = stagedChanges;
+      stageFilePicker.unstagedChanges = unstagedChanges;
+      stageFilePicker.onDidTriggerItemButton(({button, item}) => button.trigger(item));
+
+      // Minimal commit message logic
+      function getAllFilenames() {
+        return [
+          ...stageFilePicker.stagedChanges,
+          ...stageFilePicker.unstagedChanges
+        ].map(r => path.basename(r.uri.fsPath).toLowerCase());
+      }
+
+      function updateItems() {
+        const filenames = getAllFilenames();
+        const value = stageFilePicker.value.trim().toLowerCase();
+        let matchCount = 0;
+        if (value) {
+          matchCount = filenames.filter(f => f.includes(value)).length;
+        }
+        if (!value || matchCount > 0) {
+          // Normal file list
+          const stagedItems = stageFilePicker.stagedChanges.map(file => ({ label: path.basename(file.uri.fsPath) }));
+          const unstagedItems = stageFilePicker.unstagedChanges.map(file => ({ label: path.basename(file.uri.fsPath) }));
+          stageFilePicker.items = [...stagedItems, ...unstagedItems];
+        } else {
+          // Show commit message option
+          stageFilePicker.items = [{ label: `$(edit) Enter commit message: "${stageFilePicker.value}"`, alwaysShow: true, commitMsg: stageFilePicker.value }];
+        }
+      }
+
+      stageFilePicker.onDidChangeValue(updateItems);
+
+      stageFilePicker.onDidAccept(() => {
+        const [item] = stageFilePicker.selectedItems;
+        if (item && item.commitMsg !== undefined) {
+          // Set commit message in SCM input box
+          const gitAPI = useGitApi();
+          if (gitAPI && gitAPI.repositories && gitAPI.repositories.length > 0) {
+            const repo = stageFilePicker.repository || gitAPI.repositories[0];
+            if (repo && repo.inputBox) {
+              repo.inputBox.value = item.commitMsg;
+              // Move cursor to end
+              const len = item.commitMsg.length;
+              // VS Code API does not expose direct selection, but setting value then focusing works
+              setTimeout(() => {
+                vscode.commands.executeCommand('workbench.scm.focus');
+                // Some SCM providers may not focus input, so try again
+                setTimeout(() => {
+                  // Try to move cursor to end by re-setting value
+                  repo.inputBox.value = item.commitMsg;
+                }, 50);
+              }, 50);
+            }
+          }
+          stageFilePicker.hide();
+        }
+      });
+
+      updateItems();
 
 
       //   Update UI
