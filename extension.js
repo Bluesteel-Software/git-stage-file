@@ -134,18 +134,31 @@ async function activate(context) {
     const visStart = visible[0].start.line;
     const visEnd = visible[visible.length - 1].end.line;
     const visHalf = Math.floor((visStart + visEnd) / 2);
+    const visLines = visEnd - visStart + 1;
     const ranges = await getChangedRangesForEditor(editor);
     if (!ranges || ranges.length === 0) return;
 
     let targetRange = null;
     if (direction === 'next'){
       for (const r of ranges){
-        if (r.start > visHalf){ targetRange = r; break; }
+        if (r.start > visHalf) {
+          targetRange = r;
+          break;
+        } else if (r.end > visEnd) {
+          targetRange = { start: visEnd, end: r.end };
+          break;
+        }
       }
     } else { // prev
       for (let i = ranges.length - 1; i >= 0; i--){
         const r = ranges[i];
-        if (r.start < visStart){ targetRange = r; break; }
+        if (r.start < visStart - visLines) {
+          targetRange = { start: visStart - visLines + 20, end: r.end };
+          break;
+        } else if (r.start < visStart) {
+          targetRange = r;
+          break;
+        }
       }
     }
 
