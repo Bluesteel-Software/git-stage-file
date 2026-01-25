@@ -113,13 +113,13 @@
       },
       {
         "key": "alt+up",
-        "command": "quickStage.scrollUp",
+        "command": "quickStage.scrollPrevChange",
         "when": "QuickStageVisible",
         "mac": "alt+up"
       },
       {
         "key": "alt+down",
-        "command": "quickStage.scrollDown",
+        "command": "quickStage.scrollNextChange",
         "when": "QuickStageVisible",
         "mac": "alt+down"
       },
@@ -134,18 +134,6 @@
         "command": "quickStage.scrollRight",
         "when": "QuickStageVisible",
         "mac": "alt+right"
-      },
-      {
-        "key": "alt+ctrl+up",
-        "command": "quickStage.scrollPrevChange",
-        "when": "QuickStageVisible",
-        "mac": "alt+cmd+up"
-      },
-      {
-        "key": "alt+ctrl+down",
-        "command": "quickStage.scrollNextChange",
-        "when": "QuickStageVisible",
-        "mac": "alt+cmd+down"
       },
       {
         "key": "shift+ctrl+s",
