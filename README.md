@@ -42,6 +42,8 @@ Mac: **(Option)** + [ **(UP)**, **(DOWN)**, **(LEFT)**, or **(RIGHT)** ]
 
 PC: **(Alt)** + [ **(UP)**, **(DOWN)**, **(LEFT)**, or **(RIGHT)** ]
 
+By default, the **(UP)** / **(DOWN)** shortcuts move to the previous/next change in the file. Other shortcuts for scrolling by line or by page can also be set.
+
 
 ## Settings
 
