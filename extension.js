@@ -29,10 +29,14 @@ const COMMANDS = {
   openFile: `${extPrefix}.openFile`,
   stageAll: `${extPrefix}.stageAll`,
   unstageAll: `${extPrefix}.unstageAll`,
-  scrollEditorUp: `${extPrefix}.scrollUp`,
-  scrollEditorDown: `${extPrefix}.scrollDown`,
+  scrollEditorPrevChange: `${extPrefix}.scrollPrevChange`,
+  scrollEditorNextChange: `${extPrefix}.scrollNextChange`,
   scrollEditorLeft: `${extPrefix}.scrollLeft`,
   scrollEditorRight: `${extPrefix}.scrollRight`,
+  scrollEditorUp: `${extPrefix}.scrollUp`,
+  scrollEditorDown: `${extPrefix}.scrollDown`,
+  scrollEditorPageUp: `${extPrefix}.scrollPageUp`,
+  scrollEditorPageDown: `${extPrefix}.scrollPageDown`,
 };
 
 const STATUS_SYMBOLS = [
@@ -571,28 +575,52 @@ async function activate(context) {
     //   Scroll Commands
     // -------------------
 
-    //  ctrl+left => jump to previous changed range (10 lines before)
+    // alt+up => jump to previous changed range
+    vscode.commands.registerCommand(COMMANDS.scrollEditorPrevChange, async () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
+        vscode.commands.executeCommand("workbench.action.compareEditor.previousChange");
+      }
+    }),
+
+    // alt+down => jump to next changed range
+    vscode.commands.registerCommand(COMMANDS.scrollEditorNextChange, async () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
+        vscode.commands.executeCommand("workbench.action.compareEditor.nextChange");
+      }
+    }),
+
+    //  alt+left => jump to previous changed range (10 lines before)
     vscode.commands.registerCommand(COMMANDS.scrollEditorLeft, async () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         const editor = vscode.window.activeTextEditor;
         await jumpToChange(editor, 'prev');
       }
     }),
-    //  ctrl+right => jump to next changed range (10 lines before)
+    //  alt+right => jump to next changed range (10 lines before)
     vscode.commands.registerCommand(COMMANDS.scrollEditorRight, async () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         const editor = vscode.window.activeTextEditor;
         await jumpToChange(editor, 'next');
       }
     }),
-    // ctrl+up => scroll up
+
+    // other available scroll commands
     vscode.commands.registerCommand(COMMANDS.scrollEditorUp, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
+        vscode.commands.executeCommand("editorScroll",{ to: "up", by: "line", value: getScrollValue()})
+      }
+    }),
+    vscode.commands.registerCommand(COMMANDS.scrollEditorDown, () => {
+      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
+        vscode.commands.executeCommand("editorScroll",{ to: "down", by: "line", value: getScrollValue()})
+      }
+    }),
+    vscode.commands.registerCommand(COMMANDS.scrollEditorPageUp, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "up", by: "page"})
       }
     }),
-    // ctrl+down => scroll down
-    vscode.commands.registerCommand(COMMANDS.scrollEditorDown, () => {
+    vscode.commands.registerCommand(COMMANDS.scrollEditorPageDown, () => {
       if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
         vscode.commands.executeCommand("editorScroll",{ to: "down", by: "page"})
       }
