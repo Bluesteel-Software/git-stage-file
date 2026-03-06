@@ -5,6 +5,7 @@ const path = require("path");
 const os = require("os");
 
 const exec = util.promisify(cp.exec);
+const execFile = util.promisify(cp.execFile);
 const isMacOS = os.platform() === "darwin";
 
 let stageFilePicker;
@@ -55,6 +56,100 @@ function useGitApi (){
   // ------------
 
 async function activate(context) {
+  // Helpers: compute changed ranges for the active editor by running
+  // `git diff -U0 HEAD -- <file>` (safe execFile usage). For files
+  // missing in HEAD (new/untracked) treat the whole file as changed.
+  async function getChangedRangesForEditor(editor){
+    if (!editor) return [];
+    const doc = editor.document;
+    if (!stageFilePicker || !stageFilePicker.repository) return [];
+    const repoRoot = stageFilePicker.repository.rootUri.fsPath;
+
+    // For git: URIs the original fsPath is stored in the query when we
+    // created the HEAD URI. Prefer that if present.
+    let fsPath = doc.uri.fsPath;
+    if (doc.uri.scheme === 'git' && doc.uri.query){
+      try{
+        const q = JSON.parse(doc.uri.query);
+        if (q && q.path) fsPath = q.path;
+      }catch(e){}
+    }
+
+    const relPath = path.relative(repoRoot, fsPath).replace(/\\/g,'/');
+
+    // If HEAD doesn't exist for this path, treat whole file as changed
+    try{
+      await execFile('git',['cat-file','-e',`HEAD:${relPath}`], { cwd: repoRoot });
+    }catch(err){
+      // HEAD missing -> entire file
+      return [{ start: 0, end: Math.max(0, doc.lineCount - 1) }];
+    }
+
+    // Get diffs with zero context to make hunks compact
+    try{
+      const { stdout } = await execFile('git', ['diff','-U0','HEAD','--', relPath], { cwd: repoRoot });
+      const ranges = [];
+      const hunkRe = /@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/g;
+      let m;
+      while ((m = hunkRe.exec(stdout)) !== null){
+        const start = parseInt(m[1],10); // 1-based
+        const count = m[2] ? parseInt(m[2],10) : 1;
+        const s0 = Math.max(0, start - 1);
+        const e0 = Math.max(0, s0 + Math.max(1,count) - 1);
+        ranges.push({ start: s0, end: e0 });
+      }
+      if (ranges.length === 0){
+        // No hunks -> nothing changed (or binary) -> treat whole file conservatively
+        return [{ start: 0, end: Math.max(0, doc.lineCount - 1) }];
+      }
+      return ranges;
+    }catch(err){
+      return [{ start: 0, end: Math.max(0, doc.lineCount - 1) }];
+    }
+  }
+
+  async function jumpToChange(editor, direction){
+    if (!editor) return;
+    const visible = editor.visibleRanges;
+    if (!visible || visible.length === 0) return;
+    const visStart = visible[0].start.line;
+    const visEnd = visible[visible.length - 1].end.line;
+    const visHalf = Math.floor((visStart + visEnd) / 2);
+    const visLines = visEnd - visStart + 1;
+    const ranges = await getChangedRangesForEditor(editor);
+    if (!ranges || ranges.length === 0) return;
+
+    let targetRange = null;
+    if (direction === 'next'){
+      for (const r of ranges){
+        if (r.start > visHalf) {
+          targetRange = r;
+          break;
+        } else if (r.end > visEnd) {
+          targetRange = { start: visEnd, end: r.end };
+          break;
+        }
+      }
+    } else { // prev
+      for (let i = ranges.length - 1; i >= 0; i--){
+        const r = ranges[i];
+        if (r.start < visStart - visLines) {
+          targetRange = { start: visStart - visLines + 20, end: r.end };
+          break;
+        } else if (r.start < visStart) {
+          targetRange = r;
+          break;
+        }
+      }
+    }
+
+    if (!targetRange) return;
+    const targetLine = Math.max(0, targetRange.start - 10);
+    const pos = new vscode.Position(targetLine, 0);
+    editor.selection = new vscode.Selection(pos, pos);
+    editor.revealRange(new vscode.Range(pos, pos), vscode.TextEditorRevealType.AtTop);
+  }
+
   context.subscriptions.push(
 
     stageFilePicker,
@@ -150,13 +245,69 @@ async function activate(context) {
       // -----------------
 
       stageFilePicker = vscode.window.createQuickPick();
+
       stageFilePicker.keepScrollPosition = true;
       stageFilePicker.placeholder = "Select a file to Stage or Unstage ...";
-      stageFilePicker.repository = repository
-      stageFilePicker.multipleRepositories = multipleRepositories
-      stageFilePicker.stagedChanges = stagedChanges
-      stageFilePicker.unstagedChanges = unstagedChanges
-      stageFilePicker.onDidTriggerItemButton(({button, item}) => button.trigger(item))
+      stageFilePicker.repository = repository;
+      stageFilePicker.stagedChanges = stagedChanges;
+      stageFilePicker.unstagedChanges = unstagedChanges;
+      stageFilePicker.onDidTriggerItemButton(({button, item}) => button.trigger(item));
+
+      // Minimal commit message logic
+      function getAllFilenames() {
+        return [
+          ...stageFilePicker.stagedChanges,
+          ...stageFilePicker.unstagedChanges
+        ].map(r => path.basename(r.uri.fsPath).toLowerCase());
+      }
+
+      function updateItems() {
+        const filenames = getAllFilenames();
+        const value = stageFilePicker.value.trim().toLowerCase();
+        let matchCount = 0;
+        if (value) {
+          matchCount = filenames.filter(f => f.includes(value)).length;
+        }
+        if (!value || matchCount > 0) {
+          // Normal file list
+          const stagedItems = stageFilePicker.stagedChanges.map(file => ({ label: path.basename(file.uri.fsPath) }));
+          const unstagedItems = stageFilePicker.unstagedChanges.map(file => ({ label: path.basename(file.uri.fsPath) }));
+          stageFilePicker.items = [...stagedItems, ...unstagedItems];
+        } else {
+          // Show commit message option
+          stageFilePicker.items = [{ label: `$(edit) Enter commit message: "${stageFilePicker.value}"`, alwaysShow: true, commitMsg: stageFilePicker.value }];
+        }
+      }
+
+      stageFilePicker.onDidChangeValue(updateItems);
+
+      stageFilePicker.onDidAccept(() => {
+        const [item] = stageFilePicker.selectedItems;
+        if (item && item.commitMsg !== undefined) {
+          // Set commit message in SCM input box
+          const gitAPI = useGitApi();
+          if (gitAPI && gitAPI.repositories && gitAPI.repositories.length > 0) {
+            const repo = stageFilePicker.repository || gitAPI.repositories[0];
+            if (repo && repo.inputBox) {
+              repo.inputBox.value = item.commitMsg;
+              // Move cursor to end
+              const len = item.commitMsg.length;
+              // VS Code API does not expose direct selection, but setting value then focusing works
+              setTimeout(() => {
+                vscode.commands.executeCommand('workbench.scm.focus');
+                // Some SCM providers may not focus input, so try again
+                setTimeout(() => {
+                  // Try to move cursor to end by re-setting value
+                  repo.inputBox.value = item.commitMsg;
+                }, 50);
+              }, 50);
+            }
+          }
+          stageFilePicker.hide();
+        }
+      });
+
+      updateItems();
 
 
       //   Update UI

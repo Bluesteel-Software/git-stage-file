@@ -94,10 +94,10 @@
         "mac": "space"
       },
       {
-        "key": "delete",
+        "key": "ctrl+delete",
         "command": "quickStage.discardChanges",
         "when": "QuickStageVisible",
-        "mac": "delete"
+        "mac": "cmd+delete"
       },
       {
         "key": "ctrl+backspace",
