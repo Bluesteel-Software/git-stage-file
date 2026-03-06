@@ -36,6 +36,12 @@ If **(⌘⌥S)** does not work or conflicts with one our your keybindings you ca
 
 **(Escape)** => Close QuickStage.
 
+#### Jump the Editor to next change in background:
+
+Mac: **(CMD+Option)** + [ **(UP)**, **(DOWN)** ]
+
+PC: **(CTRL+Alt)** + [ **(UP)**, **(DOWN)** ]
+
 #### Scroll the Editor in the background:
 
 Mac: **(Option)** + [ **(UP)**, **(DOWN)**, **(LEFT)**, or **(RIGHT)** ]
@@ -89,6 +95,9 @@ Turn off this feature with: `"quickStage.previewDiff": false,`
  
 Turn off this feature with: `"quickStage.closePreviewOnExit": false,`
  
+ 
+## Note
+The quick stage picker can be dragged around to the top or bottom of the screen to make it easier to see the changes in the files!
 
 ## Troubleshooting
 
