@@ -27,11 +27,7 @@ const COMMANDS = {
   discardChanges: `${extPrefix}.discardChanges`,
   openFile: `${extPrefix}.openFile`,
   stageAll: `${extPrefix}.stageAll`,
-  unstageAll: `${extPrefix}.unstageAll`,
-  scrollEditorUp: `${extPrefix}.scrollUp`,
-  scrollEditorDown: `${extPrefix}.scrollDown`,
-  scrollEditorLeft: `${extPrefix}.scrollLeft`,
-  scrollEditorRight: `${extPrefix}.scrollRight`,
+  unstageAll: `${extPrefix}.unstageAll`
 };
 
 const STATUS_SYMBOLS = [
@@ -53,19 +49,6 @@ function useGitApi (){
   return vscode.extensions
   .getExtension("vscode.git")
   .exports.getAPI(1);
-}
-
-let scrollTimer;
-let scrollCounter = 1;
-
-function getScrollValue(){
-  if (scrollTimer){
-    clearTimeout(scrollTimer);
-  }
-  scrollTimer = setTimeout(() => {
-    scrollCounter = 0;
-  }, 350);
-  return Math.min(Math.floor(1 + Math.log2((++scrollCounter + 15)/15)),5)
 }
 
   //   Activate
@@ -483,34 +466,6 @@ async function activate(context) {
             break;
           }
         }
-      }
-    }),
-
-    //   Scroll Commands
-    // -------------------
-
-    //  ctrl+left => scroll left
-    vscode.commands.registerCommand(COMMANDS.scrollEditorLeft, () => {
-      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
-        vscode.commands.executeCommand("scrollLeft")
-      }
-    }),
-    //  ctrl+right => scroll right
-    vscode.commands.registerCommand(COMMANDS.scrollEditorRight, () => {
-      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
-        vscode.commands.executeCommand("scrollRight")
-      }
-    }),
-    // ctrl+up => scroll up
-    vscode.commands.registerCommand(COMMANDS.scrollEditorUp, () => {
-      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
-        vscode.commands.executeCommand("editorScroll",{ to: "up", by: "line", value: getScrollValue()})
-      }
-    }),
-    // ctrl+down => scroll down
-    vscode.commands.registerCommand(COMMANDS.scrollEditorDown, () => {
-      if (stageFilePicker && vscode.workspace.getConfiguration(extPrefix).get(KEYS.previewDiff, true)) {
-        vscode.commands.executeCommand("editorScroll",{ to: "down", by: "line", value: getScrollValue()})
       }
     }),
 

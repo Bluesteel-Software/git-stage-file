@@ -112,30 +112,6 @@
         "mac": "cmd+o"
       },
       {
-        "key": "alt+up",
-        "command": "quickStage.scrollUp",
-        "when": "QuickStageVisible",
-        "mac": "alt+up"
-      },
-      {
-        "key": "alt+down",
-        "command": "quickStage.scrollDown",
-        "when": "QuickStageVisible",
-        "mac": "alt+down"
-      },
-      {
-        "key": "alt+left",
-        "command": "quickStage.scrollLeft",
-        "when": "QuickStageVisible",
-        "mac": "alt+left"
-      },
-      {
-        "key": "alt+right",
-        "command": "quickStage.scrollRight",
-        "when": "QuickStageVisible",
-        "mac": "alt+right"
-      },
-      {
         "key": "shift+ctrl+s",
         "command": "quickStage.stageAll",
         "when": "QuickStageVisible",
@@ -146,6 +122,42 @@
         "command": "quickStage.unstageAll",
         "when": "QuickStageVisible",
         "mac": "shift+cmd+u"
+      },
+      {
+        "key": "ctrl+alt+up",
+        "command": "workbench.action.compareEditor.previousChange",
+        "when": "QuickStageVisible",
+        "mac": "cmd+alt+up"
+      },
+      {
+        "key": "ctrl+alt+down",
+        "command": "workbench.action.compareEditor.nextChange",
+        "when": "QuickStageVisible",
+        "mac": "cmd+alt+down"
+      },
+      {
+        "key": "alt+up",
+        "command": "scrollLineUp",
+        "when": "QuickStageVisible",
+        "mac": "alt+up"
+      },
+      {
+        "key": "alt+down",
+        "command": "scrollLineDown",
+        "when": "QuickStageVisible",
+        "mac": "alt+down"
+      },
+      {
+        "key": "alt+left",
+        "command": "scrollLeft",
+        "when": "QuickStageVisible",
+        "mac": "alt+left"
+      },
+      {
+        "key": "alt+right",
+        "command": "scrollRight",
+        "when": "QuickStageVisible",
+        "mac": "alt+right"
       }
     ]
   },
